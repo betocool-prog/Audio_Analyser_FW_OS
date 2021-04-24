@@ -1,3 +1,5 @@
 /Debug/
 /Release/
 /__pycache__/
+/protos/*.pb
+

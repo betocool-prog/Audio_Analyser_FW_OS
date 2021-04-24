@@ -18,6 +18,7 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#include <counters.h>
 #include "main.h"
 #include "cmsis_os.h"
 #include "i2s.h"
@@ -29,6 +30,9 @@
 #include "dioa.h"
 #include "uart.h"
 #include "rmi.h"
+#include "pcm1793_dac.h"
+#include "pcm1802_adc.h"
+#include "controller.h"
 
 /* USER CODE END Includes */
 
@@ -112,6 +116,10 @@ int main(void)
   dioa_init();
   UART_init();
   rmi_init();
+  init_counters();
+  pcm1793_dac_init();
+  pcm1802_adc_init();
+  controller_init();
   /* USER CODE END 2 */
 
   /* Init scheduler */

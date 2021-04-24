@@ -11,7 +11,7 @@ enum MESSAGE_TYPE
 
 enum MODE
 {
-    CONTINUOUS = 0;
+    FREE_RUNNING = 0;
     PULSED = 1;
 }
 
@@ -35,7 +35,7 @@ message SignalConfig
 {
     optional FUNCTION_TYPE function = 1;
     optional MODE mode = 2;
-    optional uint32 total_len = 5;
+    optional uint32 total_len = 5; //Nr of stereo samples
     optional float frequency = 6;
     optional float amplitude = 7;
 }

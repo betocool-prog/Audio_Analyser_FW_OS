@@ -4,6 +4,7 @@ from PyQt5.QtCore import pyqtSlot, QTimer, QObject
 
 import client
 import udp_receiver_thread as udp_r_t
+import tcp_client_thread as tcp_c_t
 import data_proc
 import audio_plot_window as apw
 
@@ -27,6 +28,8 @@ class Controller(QObject):
         self.udp_receiver = udp_r_t.UDPReceiverThread()
         self.udp_receiver.set_nr_of_bytes_expected(36864)
 
+        self.tcp_client = tcp_c_t.TCPClientThread()
+
         self.processor.set_data_source(self.udp_receiver)
 
         self.udp_receiver.start()
@@ -36,28 +39,29 @@ class Controller(QObject):
         # Start / stop getting data
         self.timer.timeout.connect(self.timeout)
         self.main_window.buttons["get_data"].clicked.connect(self.get_adc_data_clicked)
-        self.main_window.checkboxes["avg"].clicked.connect(self.avg_clicked)
-        self.main_window.checkboxes["x_log"].clicked.connect(self.xlog_clicked)
-        self.main_window.checkboxes["show_fft_left"].clicked.connect(self.fft_show_clicked)
-        self.main_window.checkboxes["show_fft_right"].clicked.connect(self.fft_show_clicked)
-
-        self.main_window.fft_rb_group.buttonClicked.connect(self.function_clicked)
-        self.main_window.pcm_rb_group.buttonClicked.connect(self.l_r_clicked)
-
-        self.main_window.line_edit["Frequency"].returnPressed.connect(self.frequency_changed)
-        self.main_window.line_edit["Amplitude"].returnPressed.connect(self.amplitude_changed)
-        self.main_window.line_edit["Impedance"].returnPressed.connect(self.impedance_changed)
-
-        self.main_window.drop_down["fft_windowing"].activated.connect(self.fft_windowing_changed)
-        self.main_window.drop_down["pcm_windowing"].activated.connect(self.pcm_windowing_changed)
-
-        self.main_window.drop_down["pcm_windowing"].setCurrentIndex(0)
-        self.main_window.drop_down["fft_windowing"].setCurrentIndex(3)
-
-        # Set default client settings
-        client.Client().set_function_type("SINE")
-        client.Client().set_frequency("1000")
-        client.Client().set_amplitude_v("1.5")
+        self.main_window.buttons["single_shot"].clicked.connect(self.get_single_shot_clicked)
+        # self.main_window.checkboxes["avg"].clicked.connect(self.avg_clicked)
+        # self.main_window.checkboxes["x_log"].clicked.connect(self.xlog_clicked)
+        # self.main_window.checkboxes["show_fft_left"].clicked.connect(self.fft_show_clicked)
+        # self.main_window.checkboxes["show_fft_right"].clicked.connect(self.fft_show_clicked)
+        #
+        # self.main_window.fft_rb_group.buttonClicked.connect(self.function_clicked)
+        # self.main_window.pcm_rb_group.buttonClicked.connect(self.l_r_clicked)
+        #
+        # self.main_window.line_edit["Frequency"].returnPressed.connect(self.frequency_changed)
+        # self.main_window.line_edit["Amplitude"].returnPressed.connect(self.amplitude_changed)
+        # self.main_window.line_edit["Impedance"].returnPressed.connect(self.impedance_changed)
+        #
+        # self.main_window.drop_down["fft_windowing"].activated.connect(self.fft_windowing_changed)
+        # self.main_window.drop_down["pcm_windowing"].activated.connect(self.pcm_windowing_changed)
+        #
+        # self.main_window.drop_down["pcm_windowing"].setCurrentIndex(0)
+        # self.main_window.drop_down["fft_windowing"].setCurrentIndex(3)
+        #
+        # # Set default client settings
+        # client.Client().set_function_type("SINE")
+        # client.Client().set_frequency("1000")
+        # client.Client().set_amplitude_v("1.5")
 
     # Gets called whenever the UDP data has arrived
     @pyqtSlot()
@@ -80,6 +84,10 @@ class Controller(QObject):
             self.main_window.buttons["get_data"].setText("Stop ADC Data")
             self.getting_data = True
             client.Client().get_adc_data()
+
+    @pyqtSlot()
+    def get_single_shot_clicked(self):
+        self.tcp_client.start()
 
     # Gets called when the average button is pressed
     @pyqtSlot()

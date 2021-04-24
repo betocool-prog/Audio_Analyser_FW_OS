@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto2',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0e\x61nalyser.proto\"\x08\n\x06Status\"\x08\n\x06\x43onfig\"~\n\x0cSignalConfig\x12 \n\x08\x66unction\x18\x01 \x01(\x0e\x32\x0e.FUNCTION_TYPE\x12\x13\n\x04mode\x18\x02 \x01(\x0e\x32\x05.MODE\x12\x11\n\ttotal_len\x18\x05 \x01(\r\x12\x11\n\tfrequency\x18\x06 \x01(\x02\x12\x11\n\tamplitude\x18\x07 \x01(\x02\"\x18\n\x07\x43ommand\x12\r\n\x05reset\x18\x01 \x01(\x08\"\xb1\x01\n\x07Service\x12\x0f\n\x07xfer_id\x18\x01 \x02(\r\x12#\n\x0cmessage_type\x18\x02 \x02(\x0e\x32\r.MESSAGE_TYPE\x12\x17\n\x06status\x18\x03 \x01(\x0b\x32\x07.Status\x12\x17\n\x06\x63onfig\x18\x04 \x01(\x0b\x32\x07.Config\x12#\n\x0csignalconfig\x18\x05 \x01(\x0b\x32\r.SignalConfig\x12\x19\n\x07\x63ommand\x18\x06 \x01(\x0b\x32\x08.Command*D\n\x0cMESSAGE_TYPE\x12\x0f\n\x0bSET_MESSAGE\x10\x00\x12\x0f\n\x0bGET_MESSAGE\x10\x01\x12\x12\n\x0e\x41\x43TION_MESSAGE\x10\x02*\"\n\x04MODE\x12\x0e\n\nCONTINUOUS\x10\x00\x12\n\n\x06PULSED\x10\x01*&\n\rFUNCTION_TYPE\x12\x08\n\x04SINE\x10\x00\x12\x0b\n\x07IMPULSE\x10\x01'
+  serialized_pb=b'\n\x0e\x61nalyser.proto\"\x08\n\x06Status\"\x08\n\x06\x43onfig\"~\n\x0cSignalConfig\x12 \n\x08\x66unction\x18\x01 \x01(\x0e\x32\x0e.FUNCTION_TYPE\x12\x13\n\x04mode\x18\x02 \x01(\x0e\x32\x05.MODE\x12\x11\n\ttotal_len\x18\x05 \x01(\r\x12\x11\n\tfrequency\x18\x06 \x01(\x02\x12\x11\n\tamplitude\x18\x07 \x01(\x02\"\x18\n\x07\x43ommand\x12\r\n\x05reset\x18\x01 \x01(\x08\"\xb1\x01\n\x07Service\x12\x0f\n\x07xfer_id\x18\x01 \x02(\r\x12#\n\x0cmessage_type\x18\x02 \x02(\x0e\x32\r.MESSAGE_TYPE\x12\x17\n\x06status\x18\x03 \x01(\x0b\x32\x07.Status\x12\x17\n\x06\x63onfig\x18\x04 \x01(\x0b\x32\x07.Config\x12#\n\x0csignalconfig\x18\x05 \x01(\x0b\x32\r.SignalConfig\x12\x19\n\x07\x63ommand\x18\x06 \x01(\x0b\x32\x08.Command*D\n\x0cMESSAGE_TYPE\x12\x0f\n\x0bSET_MESSAGE\x10\x00\x12\x0f\n\x0bGET_MESSAGE\x10\x01\x12\x12\n\x0e\x41\x43TION_MESSAGE\x10\x02*$\n\x04MODE\x12\x10\n\x0c\x46REE_RUNNING\x10\x00\x12\n\n\x06PULSED\x10\x01*&\n\rFUNCTION_TYPE\x12\x08\n\x04SINE\x10\x00\x12\x0b\n\x07IMPULSE\x10\x01'
 )
 
 _MESSAGE_TYPE = _descriptor.EnumDescriptor(
@@ -62,7 +62,7 @@ _MODE = _descriptor.EnumDescriptor(
   create_key=_descriptor._internal_create_key,
   values=[
     _descriptor.EnumValueDescriptor(
-      name='CONTINUOUS', index=0, number=0,
+      name='FREE_RUNNING', index=0, number=0,
       serialized_options=None,
       type=None,
       create_key=_descriptor._internal_create_key),
@@ -75,7 +75,7 @@ _MODE = _descriptor.EnumDescriptor(
   containing_type=None,
   serialized_options=None,
   serialized_start=442,
-  serialized_end=476,
+  serialized_end=478,
 )
 _sym_db.RegisterEnumDescriptor(_MODE)
 
@@ -100,8 +100,8 @@ _FUNCTION_TYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=478,
-  serialized_end=516,
+  serialized_start=480,
+  serialized_end=518,
 )
 _sym_db.RegisterEnumDescriptor(_FUNCTION_TYPE)
 
@@ -109,7 +109,7 @@ FUNCTION_TYPE = enum_type_wrapper.EnumTypeWrapper(_FUNCTION_TYPE)
 SET_MESSAGE = 0
 GET_MESSAGE = 1
 ACTION_MESSAGE = 2
-CONTINUOUS = 0
+FREE_RUNNING = 0
 PULSED = 1
 SINE = 0
 IMPULSE = 1

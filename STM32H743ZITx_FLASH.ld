@@ -177,7 +177,18 @@ SECTIONS
     . = ALIGN(8);
   } >RAM_D1
 
- /* Modification start */
+ /* Modification start */ 
+  
+  .adc_sec (NOLOAD) : {
+    . = ABSOLUTE(0x30000000);
+    *(.PCM1802_Input)
+  } >RAM_D2 AT> FLASH
+ 
+  .dac_sec (NOLOAD) : {   
+    . = ABSOLUTE(0x30002000);
+    *(.PCM1793_Output)
+  } >RAM_D2 AT> FLASH
+
   .lwip_sec (NOLOAD) : {
     . = ABSOLUTE(0x30040000);
     *(.RxDecripSection) 

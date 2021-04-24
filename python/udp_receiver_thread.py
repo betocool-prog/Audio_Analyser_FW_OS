@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 
-import sys
 import socket
 import numpy as np
 from PyQt5.QtCore import QThread, pyqtSignal
-from PyQt5.QtWidgets import QApplication, QWidget
 
 
 class UDPReceiverThread(QThread):
@@ -59,18 +57,6 @@ class UDPReceiverThread(QThread):
                     # print("Data type: {}".format(type(data)))
                     # print("Total_data type: {}".format(type(total_data_bytes)))
                     samples = np.frombuffer(total_data_bytes, dtype=self.sample_type)
-
-                    # self.left_samples = (np.int32(samples[80:1104]['left'] << 8))
-                    # self.right_samples = (np.int32(samples[80:1104]['right'] << 8))
-
-                    # self.left_samples = (np.int32(samples[80:2128]['left'] << 8))
-                    # self.right_samples = (np.int32(samples[80:2128]['right'] << 8))
-
-                    # self.left_samples = (np.int32(samples[80:4176]['left'] << 8))
-                    # self.right_samples = (np.int32(samples[80:4176]['right'] << 8))
-
-                    # self.left_samples = (np.int32(samples[80:8272]['left'] << 8))
-                    # self.right_samples = (np.int32(samples[80:8272]['right'] << 8))
 
                     self.left_samples = (np.int32(samples['left'] << 8))
                     self.right_samples = (np.int32(samples['right'] << 8))

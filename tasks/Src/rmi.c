@@ -43,7 +43,7 @@ static pb_byte_t pb_input_msg_buffer[NANOPB_BUFFER_LEN];
 static pb_byte_t pb_output_msg_buffer[NANOPB_BUFFER_LEN];
 
 /* Network variables */
-static struct netconn *conn;
+static struct netconn *rmi_conn;
 static struct netbuf *in_buf, *out_buf;
 static ip_addr_t addr = {0};
 static uint16_t port = 0;
@@ -84,10 +84,9 @@ void rmi_init(void)
 
 	message_length = 0;
 
-	xTaskCreate(rmi_task_rcv, "RMI Rx Task", 512, NULL, RMI_TASK_PRIO, NULL);
-	xTaskCreate(rmi_task_process, "RMI Process Task", 512, NULL, RMI_TASK_PRIO, &process_task_h);
-	xTaskCreate(rmi_task_send, "RMI Tx Task", 512, NULL, RMI_TASK_PRIO, &send_task_h);
-
+	xTaskCreate(rmi_task_rcv, "RMI Rx Task", 256, NULL, RMI_TASK_PRIO, NULL);
+	xTaskCreate(rmi_task_process, "RMI Process Task", 256, NULL, RMI_TASK_PRIO, &process_task_h);
+	xTaskCreate(rmi_task_send, "RMI Tx Task", 256, NULL, RMI_TASK_PRIO, &send_task_h);
 }
 
 static void rmi_task_rcv(void *pvParameters)
@@ -95,19 +94,20 @@ static void rmi_task_rcv(void *pvParameters)
 	err_t err;
 	void *data;
 
-	conn = netconn_new(NETCONN_UDP);
-	if (NULL == conn)
+	rmi_conn = netconn_new(NETCONN_UDP);
+	if (NULL == rmi_conn)
 	{
-		UART_PRINTF("New Conn NOK\n\r");
+		UART_PRINTF("New Conn NOK: %s, line: %d\n\r", __FUNCTION__, __LINE__);
 	}
 	else
 	{
-		err = netconn_bind(conn, IP_ADDR_ANY, 5003);
+		UART_PRINTF("New Conn OK: %s, line: %d\n\r", __FUNCTION__, __LINE__);
+		err = netconn_bind(rmi_conn, IP_ADDR_ANY, 5003);
 		if(ERR_OK == err)
 		{
 			while(1)
 			{
-				err = netconn_recv(conn, &in_buf);
+				err = netconn_recv(rmi_conn, &in_buf);
 				if(ERR_OK == err)
 				{
 					err = netbuf_data(in_buf, &data, &message_length);
@@ -121,14 +121,14 @@ static void rmi_task_rcv(void *pvParameters)
 					}
 				}
 				else{
-					UART_PRINTF("Error: %d\n\r", err);
+					UART_PRINTF("Rx Error: %d, %s, line: %dn\r", err, __FUNCTION__, __LINE__);
 				}
 				netbuf_delete(in_buf);
 			}
 		}
 		else
 		{
-			UART_PRINTF("Bind NOK\n\r");
+			UART_PRINTF("Bind NOK: %s, line: %d\n\r", __FUNCTION__, __LINE__);
 		}
 	}
 
@@ -146,7 +146,7 @@ void rmi_task_process(void *pvParameters)
 		input_stream = pb_istream_from_buffer(pb_input_msg_buffer, message_length);
 
 		if (!pb_decode(&input_stream, Service_fields, &service_msg_in)){
-			UART_PRINTF("Message NOK decoded\n\r");
+			UART_PRINTF("Message NOK decoded: %s, line: %d\n\r", __FUNCTION__, __LINE__);
 		}
 		else
 		{
@@ -201,7 +201,7 @@ void rmi_task_send(void *pvParameters)
 					memcpy(data, pb_output_msg_buffer, output_stream.bytes_written);
 					out_buf->addr = addr;
 					out_buf->port = port;
-					netconn_send(conn, out_buf);
+					netconn_send(rmi_conn, out_buf);
 					netbuf_delete(out_buf);
 				}
 				else

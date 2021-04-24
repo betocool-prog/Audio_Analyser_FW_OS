@@ -11,8 +11,11 @@
 #include "cmsis_os.h"
 
 /* Task priorities */
-#define DIOA_TASK_PRIO			osPriorityNormal
-#define UART_TASK_PRIO			osPriorityNormal
-#define RMI_TASK_PRIO			osPriorityNormal
+#define DIOA_TASK_PRIO				osPriorityNormal
+#define UART_TASK_PRIO				osPriorityNormal
+#define RMI_TASK_PRIO				osPriorityNormal
+#define CONTROLLER_TCP_TASK_PRIO	osPriorityNormal
+#define CONTROLLER_ADC_TASK_PRIO	osPriorityNormal
+#define CONTROLLER_DAC_TASK_PRIO	osPriorityNormal
 
 #endif /* INC_FW_CONFIG_H_ */
