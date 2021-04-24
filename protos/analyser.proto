@@ -1,0 +1,57 @@
+// Analyser interface between PC and microcontroller
+
+syntax = "proto2";
+
+enum MESSAGE_TYPE
+{
+    SET_MESSAGE = 0;
+    GET_MESSAGE = 1;
+    ACTION_MESSAGE = 2;
+}
+
+enum MODE
+{
+    CONTINUOUS = 0;
+    PULSED = 1;
+}
+
+enum FUNCTION_TYPE
+{
+    SINE = 0;
+    IMPULSE = 1;
+}
+
+message Status
+{
+
+}
+
+message Config
+{
+
+}
+
+message SignalConfig
+{
+    optional FUNCTION_TYPE function = 1;
+    optional MODE mode = 2;
+    optional uint32 total_len = 5;
+    optional float frequency = 6;
+    optional float amplitude = 7;
+}
+
+message Command
+{
+    optional bool reset = 1;
+}
+
+message Service
+{
+    required uint32 xfer_id = 1;
+    required MESSAGE_TYPE message_type = 2;
+
+    optional Status status = 3;
+    optional Config config = 4;
+    optional SignalConfig signalconfig = 5;
+    optional Command command = 6;
+}
