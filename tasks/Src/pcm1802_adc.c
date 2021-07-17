@@ -9,7 +9,6 @@
 #include "pcm1802_adc.h"
 
 extern TaskHandle_t controller_adc_task_h;
-extern eDMAXfer_enum adc_xfer_flag;
 
 void pcm1802_adc_init(void)
 {
@@ -73,21 +72,17 @@ void pcm1802_adc_init(void)
   */
 void DMA2_Stream2_IRQHandler(void)
 {
-	BaseType_t pxHigherPriorityTaskWoken;
 
-	if(DMA2->LISR & DMA_LISR_HTIF2)
-	{
-		DMA2->LIFCR |= DMA_LIFCR_CHTIF2;
-		//Half transfer interrupt
-		adc_xfer_flag = DMA_HALF_XFER;
-	}
+	BaseType_t pxHigherPriorityTaskWoken;
 
 	if(DMA2->LISR & DMA_LISR_TCIF2)
 	{
 		DMA2->LIFCR |= DMA_LIFCR_CTCIF2;
-		// Transfer complete interrupt
-		adc_xfer_flag = DMA_XFER_CPLT;
+		xTaskNotifyFromISR(controller_adc_task_h, ADC_TC_NOTIF, eSetBits, &pxHigherPriorityTaskWoken);
 	}
-	vTaskNotifyGiveFromISR(controller_adc_task_h, &pxHigherPriorityTaskWoken);
-
+	else if(DMA2->LISR & DMA_LISR_HTIF2)
+	{
+		DMA2->LIFCR |= DMA_LIFCR_CHTIF2;
+		xTaskNotifyFromISR(controller_adc_task_h, ADC_HT_NOTIF, eSetBits, &pxHigherPriorityTaskWoken);
+	}
 }

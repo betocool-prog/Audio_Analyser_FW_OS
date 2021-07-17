@@ -11,6 +11,7 @@
 //#include <controller.h>
 #include "rmi.h"
 #include "fw_config.h"
+#include "log.h"
 
 #include <stdbool.h>
 #include "uart.h"
@@ -97,11 +98,11 @@ static void rmi_task_rcv(void *pvParameters)
 	rmi_conn = netconn_new(NETCONN_UDP);
 	if (NULL == rmi_conn)
 	{
-		UART_PRINTF("New Conn NOK: %s, line: %d\n\r", __FUNCTION__, __LINE__);
+		log_msg(LOG_ERR, "New Conn NOK: %s, line: %d\n\r", __FUNCTION__, __LINE__);
 	}
 	else
 	{
-		UART_PRINTF("New Conn OK: %s, line: %d\n\r", __FUNCTION__, __LINE__);
+		log_msg(LOG_INFO, "New Conn OK: %s, line: %d\n\r", __FUNCTION__, __LINE__);
 		err = netconn_bind(rmi_conn, IP_ADDR_ANY, 5003);
 		if(ERR_OK == err)
 		{
@@ -121,14 +122,14 @@ static void rmi_task_rcv(void *pvParameters)
 					}
 				}
 				else{
-					UART_PRINTF("Rx Error: %d, %s, line: %dn\r", err, __FUNCTION__, __LINE__);
+					log_msg(LOG_ERR, "Rx Error: %d, %s, line: %dn\r", err, __FUNCTION__, __LINE__);
 				}
 				netbuf_delete(in_buf);
 			}
 		}
 		else
 		{
-			UART_PRINTF("Bind NOK: %s, line: %d\n\r", __FUNCTION__, __LINE__);
+			log_msg(LOG_ERR, "Bind NOK: %s, line: %d\n\r", __FUNCTION__, __LINE__);
 		}
 	}
 
@@ -146,7 +147,7 @@ void rmi_task_process(void *pvParameters)
 		input_stream = pb_istream_from_buffer(pb_input_msg_buffer, message_length);
 
 		if (!pb_decode(&input_stream, Service_fields, &service_msg_in)){
-			UART_PRINTF("Message NOK decoded: %s, line: %d\n\r", __FUNCTION__, __LINE__);
+			log_msg(LOG_ERR, "Message NOK decoded: %s, line: %d\n\r", __FUNCTION__, __LINE__);
 		}
 		else
 		{
@@ -189,7 +190,7 @@ void rmi_task_send(void *pvParameters)
 
 		if (!pb_encode(&output_stream, Service_fields, &service_msg_out))
 		{
-			UART_PRINTF("Output message NOT encoded!: %s, line %d\n\r", __FUNCTION__, __LINE__);
+			log_msg(LOG_ERR, "Output message NOT encoded!: %s, line %d\n\r", __FUNCTION__, __LINE__);
 		}
 		else
 		{
@@ -206,7 +207,7 @@ void rmi_task_send(void *pvParameters)
 				}
 				else
 				{
-					UART_PRINTF("Could not allocate data: %s, line %d\n\r", __FUNCTION__, __LINE__);
+					log_msg(LOG_ERR, "Could not allocate data: %s, line %d\n\r", __FUNCTION__, __LINE__);
 				}
 			}
 		}

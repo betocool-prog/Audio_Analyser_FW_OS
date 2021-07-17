@@ -12,24 +12,10 @@
 #include "stm32h7xx_hal.h"
 
 #include "main.h"
-#include "cmsis_os.h"
-//#include "task.h"
-#include "queue.h"
 
-#define UART_BUF_SIZE		128
-
-typedef struct{
-	uint8_t *buf_ptr;
-	uint32_t buf_size;
-} sUartQueueElement;
-
-extern char usart_buf[UART_BUF_SIZE];
-extern QueueHandle_t uart_queue;
+extern UART_HandleTypeDef huart3;
 
 void UART_init(void);
-void UART_MSG_Send(const char* string);
 
-#define UART_PRINTF(...) snprintf(usart_buf, UART_BUF_SIZE, ##__VA_ARGS__); \
-						UART_MSG_Send((const char*)usart_buf)
 
 #endif /* UART_H_ */

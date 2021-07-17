@@ -9,12 +9,9 @@
 #include "fw_config.h"
 
 /* Extern variables */
-char usart_buf[UART_BUF_SIZE] = {0};
-QueueHandle_t uart_queue;
+UART_HandleTypeDef huart3;
 
 /* Private Variables */
-UART_HandleTypeDef huart3;
-sUartQueueElement uart_q_element = {0};
 
 /* Private Functions */
 void UART_Error_Handler(void);
@@ -37,26 +34,6 @@ void UART_init(void)
 	{
 		UART_Error_Handler();
 	}
-	else
-	{
-//		uart_queue = xQueueCreate(16, sizeof(sUartQueueElement));
-//		xTaskCreate(UART_msg_task, "UART MSG", 256, NULL, UART_TASK_PRIO, NULL);
-	}
-}
-
-void UART_msg_task(void *pvParameters)
-{
-
-	while(1)
-	{
-		xQueueReceive(uart_queue, (void *)&uart_q_element, portMAX_DELAY);
-		HAL_UART_Transmit(&huart3, uart_q_element.buf_ptr, uart_q_element.buf_size, 50);
-	}
-}
-
-void UART_MSG_Send(const char* string){
-
-	HAL_UART_Transmit(&huart3, (uint8_t*)string, strlen(string), 50);
 }
 
 void HAL_UART_MspInit(UART_HandleTypeDef *huart)

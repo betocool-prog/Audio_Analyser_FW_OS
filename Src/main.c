@@ -27,12 +27,13 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "dioa.h"
-#include "uart.h"
-#include "rmi.h"
-#include "pcm1793_dac.h"
-#include "pcm1802_adc.h"
-#include "controller.h"
+//#include "dioa.h"
+//#include "log.h"
+//#include "uart.h"
+//#include "rmi.h"
+//#include "pcm1793_dac.h"
+//#include "pcm1802_adc.h"
+//#include "controller.h"
 
 /* USER CODE END Includes */
 
@@ -113,13 +114,14 @@ int main(void)
   MX_I2S2_Init();
   MX_I2S3_Init();
   /* USER CODE BEGIN 2 */
-  dioa_init();
-  UART_init();
-  rmi_init();
-  init_counters();
-  pcm1793_dac_init();
-  pcm1802_adc_init();
-  controller_init();
+//  log_init();
+//  dioa_init();
+//  UART_init();
+//  rmi_init();
+//  init_counters();
+//  pcm1793_dac_init();
+//  pcm1802_adc_init();
+//  controller_init();
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -260,6 +262,23 @@ void MPU_Config(void)
   MPU_InitStruct.IsBufferable = MPU_ACCESS_BUFFERABLE;
 
   HAL_MPU_ConfigRegion(&MPU_InitStruct);
+
+  /**Initializes and configures the Region and the memory to be protected
+    */
+    MPU_InitStruct.Enable = MPU_REGION_ENABLE;
+    MPU_InitStruct.Number = MPU_REGION_NUMBER2;
+    MPU_InitStruct.BaseAddress = 0x30002000;
+    MPU_InitStruct.Size = MPU_REGION_SIZE_8KB;
+    MPU_InitStruct.SubRegionDisable = 0x0;
+    MPU_InitStruct.TypeExtField = MPU_TEX_LEVEL0;
+    MPU_InitStruct.AccessPermission = MPU_REGION_FULL_ACCESS;
+    MPU_InitStruct.DisableExec = MPU_INSTRUCTION_ACCESS_DISABLE;
+    MPU_InitStruct.IsShareable = MPU_ACCESS_SHAREABLE;
+    MPU_InitStruct.IsCacheable = MPU_ACCESS_NOT_CACHEABLE;
+    MPU_InitStruct.IsBufferable = MPU_ACCESS_BUFFERABLE;
+
+    HAL_MPU_ConfigRegion(&MPU_InitStruct);
+
   /* Enables the MPU */
   HAL_MPU_Enable(MPU_PRIVILEGED_DEFAULT);
 

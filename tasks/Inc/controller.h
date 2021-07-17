@@ -14,7 +14,9 @@
 #include <math.h>
 #include "stm32h7xx_hal.h"
 #include "analyser.pb.h"
-#include "uart.h"
+
+#include "cmsis_os.h"
+#include "task.h"
 
 /* Defines */
 #define FS									96000.0
@@ -29,9 +31,12 @@
 
 typedef enum
 {
-	DMA_HALF_XFER = 0,
-	DMA_XFER_CPLT = 1
-} eDMAXfer_enum;
+	NONE_NOTIF = 	0x0000,
+	DAC_HT_NOTIF = 	0x0001,
+	DAC_TC_NOTIF = 	0x0002,
+	ADC_HT_NOTIF = 	0x0004,
+	ADC_TC_NOTIF = 	0x0008
+} eNotif_enum;
 
 typedef struct
 {
@@ -64,7 +69,5 @@ extern tController_Sample controller_output_buffer[OUTPUT_BUF_SIZE_STEREO_SAMPLE
 extern tController_Sample controller_input_buffer[INPUT_BUF_SIZE_STEREO_SAMPLES];
 extern TaskHandle_t controller_adc_task_h;
 extern TaskHandle_t controller_dac_task_h;
-extern eDMAXfer_enum adc_xfer_flag;
-extern eDMAXfer_enum dac_xfer_flag;
 
 #endif /* CONTROLLER_H_ */

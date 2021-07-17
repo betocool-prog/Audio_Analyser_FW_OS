@@ -9,8 +9,6 @@
 #include "pcm1793_dac.h"
 #include "pcm1802_adc.h"
 
-eDMAXfer_enum dac_xfer_flag;
-
 void pcm1793_dac_init(void)
 {
 	uint32_t aux_register = 0x0;
@@ -33,7 +31,7 @@ void pcm1793_dac_init(void)
 	aux_register |= DMA_SxCR_TCIE;
 	aux_register |= DMA_SxCR_HTIE;
 
-    HAL_NVIC_SetPriority(DMA2_Stream3_IRQn, 7, 0);
+    HAL_NVIC_SetPriority(DMA2_Stream3_IRQn, 6, 0);
     HAL_NVIC_EnableIRQ(DMA2_Stream3_IRQn);
 
 	DMA2_Stream3->CR = aux_register;
@@ -51,7 +49,7 @@ void pcm1793_dac_init(void)
 	}
 
 	aux_register = 0;
-	aux_register |= SPI_CFG1_TXDMAEN;;
+	aux_register |= SPI_CFG1_TXDMAEN;
 	SPI3->CFG1 |= aux_register;
 
 	//Chip Enable pin
@@ -67,22 +65,21 @@ void pcm1793_dac_init(void)
 	SPI3->CR1 |= SPI_CR1_CSTART;
 }
 
-
-
 /**
   * @brief This function handles SPI3 (DAC) DMA global interrupt.
   */
 void DMA2_Stream3_IRQHandler(void)
 {
+	BaseType_t pxHigherPriorityTaskWoken;
+
 	if(DMA2->LISR & DMA_LISR_TCIF3)
 	{
 		DMA2->LIFCR |= DMA_LIFCR_CTCIF3;
-		dac_xfer_flag = DMA_XFER_CPLT;
+		xTaskNotifyFromISR(controller_dac_task_h, DAC_TC_NOTIF, eSetBits, &pxHigherPriorityTaskWoken);
 	}
-
-	if(DMA2->LISR & DMA_LISR_HTIF3)
+	else if(DMA2->LISR & DMA_LISR_HTIF3)
 	{
 		DMA2->LIFCR |= DMA_LIFCR_CHTIF3;
-		dac_xfer_flag = DMA_HALF_XFER;
+		xTaskNotifyFromISR(controller_dac_task_h, DAC_HT_NOTIF, eSetBits, &pxHigherPriorityTaskWoken);
 	}
 }
