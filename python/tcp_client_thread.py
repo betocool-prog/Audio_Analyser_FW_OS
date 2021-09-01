@@ -18,6 +18,7 @@ class TCPClientThread(QThread):
         self.right_samples = None
         self.sock = None
         self.connected = False
+        self.samples = 0
 
     def rx_complete(self):
         self.rx_complete_signal.emit()
@@ -45,12 +46,16 @@ class TCPClientThread(QThread):
                 try:
                     # print("Waiting for message...")
                     data = self.sock.recv(1500)
+
                     if not data:
                         rx_data_flag = False
                     else:
-                        print("Received: {}".format(len(data)))
                         total_data.extend(data)
                         total_len += len(data)
+
+                    if self.samples != -1:
+                        if total_len >= self.samples * 8:
+                            rx_data_flag = False
 
                 except socket.timeout as e:
                     print("Socket timeout: {}".format(e))
@@ -58,21 +63,27 @@ class TCPClientThread(QThread):
                     total_data = bytearray()
                     rx_data_flag = False
 
-            print("Total length received: {} bytes".format(total_len))
-            # # print("Received: {}".format(total_len))
-            # total_data_bytes = bytes(total_data)
-            #
-            # if total_len >= self.nr_of_bytes_expected:
-            #     # print("Total Len: {}".format(total_len))
-            #     total_len = 0
-            #     total_data = bytearray()
-            #     # print("Data type: {}".format(type(data)))
-            #     # print("Total_data type: {}".format(type(total_data_bytes)))
-            #     samples = np.frombuffer(total_data_bytes, dtype=self.sample_type)
-            #
-            #     self.left_samples = (np.int32(samples['left'] << 8))
-            #     self.right_samples = (np.int32(samples['right'] << 8))
-                # self.rx_complete()
+                # if total_len >= self.nr_of_bytes_expected:
+                if self.samples != -1:
+                    if total_len >= (4096 * 8):
+                        # print("Data type: {}".format(type(data)))
+                        print("Total Len: {}".format(total_len))
+                        samples = np.frombuffer(total_data, dtype=self.sample_type)
+                        total_len = 0
+                        total_data = bytearray()
+
+                        self.left_samples = (np.int32(samples['left'] << 8))
+                        self.right_samples = (np.int32(samples['right'] << 8))
+                        self.rx_complete()
+                else:
+                    print("Total Len: {}".format(total_len))
+                    samples = np.frombuffer(total_data, dtype=self.sample_type)
+                    total_len = 0
+                    total_data = bytearray()
+
+                    self.left_samples = (np.int32(samples['left'] << 8))
+                    self.right_samples = (np.int32(samples['right'] << 8))
+                    self.rx_complete()
 
     def stop(self):
         self.terminate()

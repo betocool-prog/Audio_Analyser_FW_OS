@@ -26,18 +26,17 @@ void pcm1802_adc_init(void)
 	aux_register |= DMA_SxCR_MSIZE_1;
 	aux_register |= DMA_SxCR_PSIZE_1;
 	aux_register |= DMA_SxCR_MINC;
-//	aux_register |= DMA_SxCR_DBM;
 	aux_register |= DMA_SxCR_CIRC;
 	aux_register |= DMA_SxCR_PL_1;
-//	aux_register |= DMA_SxCR_DIR_0;
 	aux_register |= DMA_SxCR_TCIE;
 	aux_register |= DMA_SxCR_HTIE;
 	aux_register |= DMA_SxCR_TEIE;
 	aux_register |= DMA_SxCR_DMEIE;
+
 	DMA2_Stream2->CR = aux_register;
 	DMA2_Stream2->FCR &= ~(DMA_SxFCR_DMDIS);
 
-    HAL_NVIC_SetPriority(DMA2_Stream2_IRQn, 7, 0);
+    HAL_NVIC_SetPriority(DMA2_Stream2_IRQn, 6, 0);
     HAL_NVIC_EnableIRQ(DMA2_Stream2_IRQn);
 
 	DMA2_Stream2->PAR = (uint32_t)&(SPI2->RXDR);
@@ -52,16 +51,22 @@ void pcm1802_adc_init(void)
 	}
 
 	aux_register = 0;
-
 	aux_register |= SPI_CFG1_RXDMAEN;
 	SPI2->CFG1 |= aux_register;
+
+	/* Need to swap MISO and MOSI ! */
+	SPI2->CFG2 |= SPI_CFG2_IOSWP;
+	/* Channel len not set to 1 by HW */
+	SPI2->I2SCFGR |= SPI_I2SCFGR_CHLEN;
 
 	//Chip Enable pin
 	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_4, GPIO_PIN_SET);
 
-	DMA2_Stream2->M0AR = (uint32_t)controller_input_buffer;
+	DMA2_Stream2->M0AR = (uint32_t)&(controller_input_buffer[0].left);
 	DMA2_Stream2->NDTR = INPUT_BUF_SIZE_STEREO_SAMPLES * 2;
 
+	/* Clear interrupt flags */
+	DMA2->LIFCR |= DMA_LIFCR_CTCIF2 | DMA_LIFCR_CHTIF2;
 	DMA2_Stream2->CR |= DMA_SxCR_EN;
 	SPI2->CR1 |= SPI_CR1_SPE;
 	SPI2->CR1 |= SPI_CR1_CSTART;
@@ -78,11 +83,25 @@ void DMA2_Stream2_IRQHandler(void)
 	if(DMA2->LISR & DMA_LISR_TCIF2)
 	{
 		DMA2->LIFCR |= DMA_LIFCR_CTCIF2;
-		xTaskNotifyFromISR(controller_adc_task_h, ADC_TC_NOTIF, eSetBits, &pxHigherPriorityTaskWoken);
+		xTaskNotifyFromISR(controller_adc_task_h, ADC_TC_NOTIF, eSetValueWithOverwrite, &pxHigherPriorityTaskWoken);
+
 	}
-	else if(DMA2->LISR & DMA_LISR_HTIF2)
+
+	if(DMA2->LISR & DMA_LISR_HTIF2)
 	{
 		DMA2->LIFCR |= DMA_LIFCR_CHTIF2;
-		xTaskNotifyFromISR(controller_adc_task_h, ADC_HT_NOTIF, eSetBits, &pxHigherPriorityTaskWoken);
+		xTaskNotifyFromISR(controller_adc_task_h, ADC_HT_NOTIF, eSetValueWithOverwrite, &pxHigherPriorityTaskWoken);
+	}
+
+	if(DMA2->LISR & DMA_LISR_TEIF2)
+	{
+		DMA2->LIFCR |= DMA_LIFCR_CTEIF2;
+		xTaskNotifyFromISR(controller_adc_task_h, ADC_ERR_NOTIF, eSetBits, &pxHigherPriorityTaskWoken);
+	}
+
+	if(DMA2->LISR & DMA_LISR_DMEIF2)
+	{
+		DMA2->LIFCR |= DMA_LIFCR_CDMEIF2;
+		xTaskNotifyFromISR(controller_adc_task_h, ADC_ERR_NOTIF, eSetBits, &pxHigherPriorityTaskWoken);
 	}
 }

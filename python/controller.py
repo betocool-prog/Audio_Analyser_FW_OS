@@ -25,15 +25,12 @@ class Controller(QObject):
         self.main_window.set_pcm_graph(self.processor.grPCM)
         self.main_window.build_window()
 
-        self.udp_receiver = udp_r_t.UDPReceiverThread()
-        self.udp_receiver.set_nr_of_bytes_expected(36864)
-
         self.tcp_client = tcp_c_t.TCPClientThread()
 
-        self.processor.set_data_source(self.udp_receiver)
+        self.processor.set_data_source(self.tcp_client)
 
-        self.udp_receiver.start()
-        self.udp_receiver.rx_complete_signal.connect(self.data_rdy_slot)
+        # self.udp_receiver.start()
+        self.tcp_client.rx_complete_signal.connect(self.data_rdy_slot)
 
         # Connect signals and slots
         # Start / stop getting data
@@ -63,30 +60,33 @@ class Controller(QObject):
         # client.Client().set_frequency("1000")
         # client.Client().set_amplitude_v("1.5")
 
-    # Gets called whenever the UDP data has arrived
+    # Gets called whenever the TCP data has arrived
     @pyqtSlot()
     def data_rdy_slot(self):
         self.processor.data_rdy_slot()
 
-        if self.getting_data:
-            self.timer.setInterval(10)
-            self.timer.setSingleShot(True)
-            self.timer.start()
+        # if self.getting_data:
+        #     self.timer.setInterval(10)
+        #     self.timer.setSingleShot(True)
+        #     self.timer.start()
 
     # Gets called when the get data button is pressed
     @pyqtSlot()
     def get_adc_data_clicked(self):
-        if self.getting_data:
-            self.getting_data = False
-            self.main_window.buttons["get_data"].setText("Get ADC Data")
-
-        else:
-            self.main_window.buttons["get_data"].setText("Stop ADC Data")
-            self.getting_data = True
-            client.Client().get_adc_data()
+        self.tcp_client.samples = -1
+        self.tcp_client.start()
+        # if self.getting_data:
+        #     self.getting_data = False
+        #     self.main_window.buttons["get_data"].setText("Get ADC Data")
+        #
+        # else:
+        #     self.main_window.buttons["get_data"].setText("Stop ADC Data")
+        #     self.getting_data = True
+        #     client.Client().get_adc_data()
 
     @pyqtSlot()
     def get_single_shot_clicked(self):
+        self.tcp_client.samples = 4096
         self.tcp_client.start()
 
     # Gets called when the average button is pressed

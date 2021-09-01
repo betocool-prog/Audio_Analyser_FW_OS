@@ -22,8 +22,12 @@
 #define FS									96000.0
 
 #define OUTPUT_BUF_SIZE_STEREO_SAMPLES		256
-#define INPUT_BUF_SIZE_STEREO_SAMPLES		64 //364
-#define ADC_PACKET_SIZE						1024
+
+#define INPUT_BUF_SIZE_STEREO_SAMPLES		128										///< 128 Stereo Samples
+#define INPUT_BUF_SIZE_BYTES				INPUT_BUF_SIZE_STEREO_SAMPLES * 8		///< 1024 Bytes
+#define	TCP_OUT_BLOCKS						16
+#define	TCP_OUT_BLOCK_SIZE					INPUT_BUF_SIZE_BYTES / 2				///< 512 Bytes
+#define TCP_OUT_BUF_SIZE					TCP_OUT_BLOCK_SIZE * TCP_OUT_BLOCKS		///< 8 KBytes
 
 #define controller_mode_INIT				MODE_PULSED
 #define controller_pulsed_INIT				{FUNCTION_TYPE_SINE, 0, 4608, 4608}
@@ -35,7 +39,8 @@ typedef enum
 	DAC_HT_NOTIF = 	0x0001,
 	DAC_TC_NOTIF = 	0x0002,
 	ADC_HT_NOTIF = 	0x0004,
-	ADC_TC_NOTIF = 	0x0008
+	ADC_TC_NOTIF = 	0x0008,
+	ADC_ERR_NOTIF =	0x0010
 } eNotif_enum;
 
 typedef struct
