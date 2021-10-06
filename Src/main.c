@@ -82,13 +82,13 @@ int main(void)
   /* USER CODE END 1 */
 
   /* MPU Configuration--------------------------------------------------------*/
-//  MPU_Config();
+  MPU_Config();
 
   /* Enable I-Cache---------------------------------------------------------*/
-//  SCB_EnableICache();
+  SCB_EnableICache();
 
   /* Enable D-Cache---------------------------------------------------------*/
-//  SCB_EnableDCache();
+  SCB_EnableDCache();
 
   /* MCU Configuration--------------------------------------------------------*/
 
@@ -283,8 +283,8 @@ void MPU_Config(void)
         */
         MPU_InitStruct.Enable = MPU_REGION_ENABLE;
         MPU_InitStruct.Number = MPU_REGION_NUMBER3;
-        MPU_InitStruct.BaseAddress = 0x38000000;
-        MPU_InitStruct.Size = MPU_REGION_SIZE_1KB;
+        MPU_InitStruct.BaseAddress = 0x30000800;
+        MPU_InitStruct.Size = MPU_REGION_SIZE_4KB;
         MPU_InitStruct.SubRegionDisable = 0x0;
         MPU_InitStruct.TypeExtField = MPU_TEX_LEVEL0;
         MPU_InitStruct.AccessPermission = MPU_REGION_FULL_ACCESS;

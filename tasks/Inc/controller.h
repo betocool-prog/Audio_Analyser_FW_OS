@@ -17,17 +17,19 @@
 
 #include "cmsis_os.h"
 #include "task.h"
+#include "stream_buffer.h"
 
 /* Defines */
 #define FS									96000.0
 
 #define OUTPUT_BUF_SIZE_STEREO_SAMPLES		256
 
-#define INPUT_BUF_SIZE_STEREO_SAMPLES		128										///< 128 Stereo Samples
-#define INPUT_BUF_SIZE_BYTES				INPUT_BUF_SIZE_STEREO_SAMPLES * 8		///< 1024 Bytes
-#define	TCP_OUT_BLOCKS						16
-#define	TCP_OUT_BLOCK_SIZE					INPUT_BUF_SIZE_BYTES / 2				///< 512 Bytes
-#define TCP_OUT_BUF_SIZE					TCP_OUT_BLOCK_SIZE * TCP_OUT_BLOCKS		///< 8 KBytes
+#define INPUT_BUF_SIZE_STEREO_SAMPLES		384										///<  Stereo Samples
+#define INPUT_BUF_SIZE_BYTES				INPUT_BUF_SIZE_STEREO_SAMPLES * 8
+//#define	TCP_OUT_BLOCKS						16
+//#define	TCP_OUT_BLOCK_SIZE					INPUT_BUF_SIZE_BYTES / 2				///< 512 Bytes
+#define TCP_OUT_BUF_SIZE					1024
+#define TCP_STREAM_BUF_SIZE					32768
 
 #define controller_mode_INIT				MODE_PULSED
 #define controller_pulsed_INIT				{FUNCTION_TYPE_SINE, 0, 4608, 4608}

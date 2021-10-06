@@ -22,14 +22,19 @@ static void controller_adc_task(void *pvParameters);
 static void controller_tcp_task(void *pvParameters);
 
 /* Variable declaration */
-tController_Sample controller_output_buffer[OUTPUT_BUF_SIZE_STEREO_SAMPLES];// __attribute__((section(".PCM1793_Output"))); /* Audio output section */
+tController_Sample controller_output_buffer[OUTPUT_BUF_SIZE_STEREO_SAMPLES] __attribute__((section(".PCM1793_Output"))); /* Audio output section */
 tController_Sample controller_input_buffer[INPUT_BUF_SIZE_STEREO_SAMPLES] __attribute__((section(".PCM1802_Input"))); /* Audio input section */
 
+/* TCP Data out Stream buffer */
+static uint8_t tcp_stream_buffer[TCP_STREAM_BUF_SIZE + 1] = {0};
+static uint8_t tcp_out_buffer[TCP_OUT_BUF_SIZE] = {0};
+static StaticStreamBuffer_t tcp_out_stream_buffer_struct = {0};
+static StreamBufferHandle_t	tcp_out_stream_buffer_h = {0};
+
 static TaskHandle_t tcp_task_handle;
-static uint8_t tcp_out_buffer[INPUT_BUF_SIZE_BYTES * 8] = {0};
-static uint8_t *tcp_out_buffer_ptr = NULL;
 
 static struct netconn *controller_conn, *newconn;
+static bool conn_accepted = false;
 
 /* Global variables */
 TaskHandle_t controller_adc_task_h;
@@ -44,13 +49,26 @@ void controller_init(void)
 	xTaskCreate(controller_tcp_task, "Controller TCP Task", 512, NULL, CONTROLLER_TCP_TASK_PRIO, &tcp_task_handle);
 	xTaskCreate(controller_dac_task, "Controller DAC Task", 512, NULL, CONTROLLER_DAC_TASK_PRIO, &controller_dac_task_h);
 	xTaskCreate(controller_adc_task, "Controller ADC Task", 512, NULL, CONTROLLER_ADC_TASK_PRIO, &controller_adc_task_h);
+
+	/* TCP Out stream buffer creation */
+	tcp_out_stream_buffer_h = xStreamBufferCreateStatic(
+			TCP_STREAM_BUF_SIZE + 1,
+			TCP_OUT_BUF_SIZE,
+			tcp_stream_buffer,
+			&tcp_out_stream_buffer_struct
+			);
+
+	if(NULL == tcp_out_stream_buffer_h)
+	{
+		log_msg(LOG_ERR, "controller.c: Stream Buffer Error: %s, line: %d \n\r", __FUNCTION__, __LINE__);
+	}
 }
 
 void controller_dac_task(void *pvParameters)
 {
 	uint32_t notification = 0;
-	static uint32_t frequency = 1017;
-	static float amplitude = 1.0f;
+	static uint32_t frequency = 94;
+	static float amplitude = 0.8f;
 	uint32_t idx = 0;
 	uint32_t k = 0;
 
@@ -67,7 +85,7 @@ void controller_dac_task(void *pvParameters)
 			buffer_ptr = &(controller_output_buffer[0]);
 			for(idx = 0; idx < OUTPUT_BUF_SIZE_STEREO_SAMPLES / 2; idx++)
 			{
-				buffer_ptr[idx].left = sine_lut[k] / 2;
+				buffer_ptr[idx].left = (int32_t)((float)sine_lut[k] * amplitude);
 				buffer_ptr[idx].right = buffer_ptr[idx].left;
 
 				k += frequency;
@@ -84,7 +102,7 @@ void controller_dac_task(void *pvParameters)
 			buffer_ptr = &(controller_output_buffer[OUTPUT_BUF_SIZE_STEREO_SAMPLES/2]);
 			for(idx = 0; idx < OUTPUT_BUF_SIZE_STEREO_SAMPLES / 2; idx++)
 			{
-				buffer_ptr[idx].left = sine_lut[k] / 2;
+				buffer_ptr[idx].left = (int32_t)((float)sine_lut[k] * amplitude);
 				buffer_ptr[idx].right = buffer_ptr[idx].left;
 
 				k += frequency;
@@ -101,9 +119,9 @@ void controller_dac_task(void *pvParameters)
 void controller_adc_task(void *pvParameters)
 {
 	uint8_t* from_ptr = NULL;
-	uint8_t* to_ptr = NULL;
-	static uint32_t idx = 0;
 	uint32_t notification = 0;
+	uint32_t data_size = 0;
+	uint32_t prev_notif = 0;
 
 	while(1)
 	{
@@ -113,29 +131,51 @@ void controller_adc_task(void *pvParameters)
 
 		if(notification & ADC_HT_NOTIF)
 		{
-			from_ptr = (uint8_t*)controller_input_buffer;
+			if(conn_accepted)
+			{
+				from_ptr = (uint8_t*)controller_input_buffer;
+				data_size = xStreamBufferSend(tcp_out_stream_buffer_h,
+	                    (const void *)from_ptr,
+						INPUT_BUF_SIZE_STEREO_SAMPLES * 4,
+	                    0);
+
+				if (data_size != (INPUT_BUF_SIZE_STEREO_SAMPLES * 4))
+				{
+					log_msg(LOG_ERR, "controller.c: Error writing to buffer: %s, line: %d, size: %lu", __FUNCTION__, __LINE__, data_size);
+				}
+			}
 		}
 
 		if(notification & ADC_TC_NOTIF)
 		{
-			from_ptr = (uint8_t*)&controller_input_buffer[INPUT_BUF_SIZE_STEREO_SAMPLES / 2];
+			if(conn_accepted)
+			{
+				from_ptr = (uint8_t*)&controller_input_buffer[INPUT_BUF_SIZE_STEREO_SAMPLES / 2];
+				data_size = xStreamBufferSend(tcp_out_stream_buffer_h,
+	                    (const void *)from_ptr,
+						INPUT_BUF_SIZE_STEREO_SAMPLES * 4,
+	                    0);
+
+				if (data_size != (INPUT_BUF_SIZE_STEREO_SAMPLES * 4))
+				{
+					log_msg(LOG_ERR, "controller.c: Error writing to buffer: %s, line: %d, size: %lu", __FUNCTION__, __LINE__, data_size);
+				}
+			}
 		}
 
 		if(notification & ADC_ERR_NOTIF)
 		{
-			log_msg(LOG_ERR, "DMA RX Error\n\r");
+			log_msg(LOG_ERR, "DMA RX Error");
 		}
 
-		to_ptr = &tcp_out_buffer[idx * TCP_OUT_BLOCK_SIZE];
-		memcpy((void*)to_ptr, (void*)from_ptr, TCP_OUT_BLOCK_SIZE);
-		tcp_out_buffer_ptr = to_ptr;
-
-		idx++;
-		xTaskNotifyGive(tcp_task_handle);
-
-		if (TCP_OUT_BLOCKS == idx)
+		if(conn_accepted)
 		{
-			idx = 0;
+			if(prev_notif == notification)
+			{
+				log_msg(LOG_ERR, "controller.c: Notification equals! Prev: %lu, Curr: %lu", prev_notif, notification);
+			}
+
+			prev_notif = notification;
 		}
 	}
 }
@@ -144,6 +184,8 @@ static void controller_tcp_task(void *pvParameters)
 {
 	err_t err, accept_err;
 	uint32_t bytes_written = 0;
+	uint32_t bytes_read = 0;
+	bool do_loop = true;
 
 	/* Create a new TCP connection handle */
 	controller_conn = netconn_new(NETCONN_TCP);
@@ -165,27 +207,46 @@ static void controller_tcp_task(void *pvParameters)
 				if(accept_err == ERR_OK)
 				{
 					log_msg(LOG_INFO, "Accept OK: %s, line: %d \n\r", __FUNCTION__, __LINE__);
+					conn_accepted = true;
 
 					/* Write TCP data */
-					err = ERR_OK;
-					while(ERR_OK == err)
+					do_loop = true;
+					while(do_loop)
 					{
-						ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-						err = netconn_write(newconn, tcp_out_buffer_ptr, TCP_OUT_BLOCK_SIZE, NETCONN_NOCOPY);
 
-						if(ERR_OK != err)
+						bytes_read = xStreamBufferReceive(
+								tcp_out_stream_buffer_h,
+								(void *)tcp_out_buffer,
+								TCP_OUT_BUF_SIZE,
+								1
+								);
+
+						if(bytes_read != 0)
 						{
-							log_msg(LOG_ERR, "Write NOK: %s, line: %d \n\r", __FUNCTION__, __LINE__);
+							err = netconn_write(newconn, tcp_out_buffer, bytes_read, NETCONN_COPY);
+							if(ERR_OK == err)
+							{
+								bytes_written += bytes_read;
+							}
+							else
+							{
+								do_loop = false;
+								log_msg(LOG_ERR, "Write NOK: %s, line: %d \n\r", __FUNCTION__, __LINE__);
+							}
 						}
-						else
-						{
-							bytes_written += TCP_OUT_BLOCK_SIZE;
-						}
+
+//						if(32768 <= bytes_written)
+//						{
+//							do_loop = false;
+//						}
 					}
 
-					bytes_written = 0;
+					conn_accepted = false;
 					netconn_close(newconn);
 					netconn_delete(newconn);
+					xStreamBufferReset(tcp_out_stream_buffer_h);
+					log_msg(LOG_INFO, "Bytes Written: %lu\n\r", bytes_written);
+					bytes_written = 0;
 				}
 				else
 				{

@@ -179,17 +179,17 @@ SECTIONS
 
  /* Modification start */ 
  
- /* .dac_sec (NOLOAD) : {   
+ .dac_sec (NOLOAD) : {   
     . = ABSOLUTE(0x30000000);
     *(.PCM1793_Output)
-  } >RAM_D2 AT> FLASH*/
+  } >RAM_D2 AT> FLASH
   
   .adc_sec (NOLOAD) : {
     . = ABSOLUTE(0x30000800);
     *(.PCM1802_Input)
   } >RAM_D2 AT> FLASH
 
- /* .lwip_sec (NOLOAD) : {
+ .lwip_sec (NOLOAD) : {
     . = ABSOLUTE(0x30040000);
     *(.RxDecripSection) 
     
@@ -198,7 +198,7 @@ SECTIONS
     
     . = ABSOLUTE(0x30040200);
     *(.RxArraySection) 
-  } >RAM_D2 AT> FLASH */
+  } >RAM_D2 AT> FLASH
   /* Modification end */ 
 
   /* Remove information from the standard libraries */
