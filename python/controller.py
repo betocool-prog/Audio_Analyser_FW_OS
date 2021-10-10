@@ -3,7 +3,6 @@
 from PyQt5.QtCore import pyqtSlot, QTimer, QObject
 
 import client
-import udp_receiver_thread as udp_r_t
 import tcp_client_thread as tcp_c_t
 import data_proc
 import audio_plot_window as apw
@@ -29,7 +28,6 @@ class Controller(QObject):
 
         self.processor.set_data_source(self.tcp_client)
 
-        # self.udp_receiver.start()
         self.tcp_client.rx_complete_signal.connect(self.data_rdy_slot)
 
         # Connect signals and slots
@@ -75,14 +73,6 @@ class Controller(QObject):
     def get_adc_data_clicked(self):
         self.tcp_client.samples = -1
         self.tcp_client.start()
-        # if self.getting_data:
-        #     self.getting_data = False
-        #     self.main_window.buttons["get_data"].setText("Get ADC Data")
-        #
-        # else:
-        #     self.main_window.buttons["get_data"].setText("Stop ADC Data")
-        #     self.getting_data = True
-        #     client.Client().get_adc_data()
 
     @pyqtSlot()
     def get_single_shot_clicked(self):

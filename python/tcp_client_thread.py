@@ -39,7 +39,6 @@ class TCPClientThread(QThread):
             total_len = 0
             total_data = bytearray()
             rx_data_flag = True
-            # self.sock.settimeout(0.2)
 
             while rx_data_flag:
 
@@ -63,19 +62,8 @@ class TCPClientThread(QThread):
                     total_data = bytearray()
                     rx_data_flag = False
 
-                # if total_len >= self.nr_of_bytes_expected:
-                if self.samples != -1:
-                    if total_len >= (4096 * 8):
-                        # print("Data type: {}".format(type(data)))
-                        print("Total Len: {}".format(total_len))
-                        samples = np.frombuffer(total_data, dtype=self.sample_type)
-                        total_len = 0
-                        total_data = bytearray()
-
-                        self.left_samples = (np.int32(samples['left'] << 8))
-                        self.right_samples = (np.int32(samples['right'] << 8))
-                        self.rx_complete()
-                else:
+                # if self.samples != -1:
+                if total_len >= (4096 * 8):
                     print("Total Len: {}".format(total_len))
                     samples = np.frombuffer(total_data, dtype=self.sample_type)
                     total_len = 0
@@ -84,6 +72,8 @@ class TCPClientThread(QThread):
                     self.left_samples = (np.int32(samples['left'] << 8))
                     self.right_samples = (np.int32(samples['right'] << 8))
                     self.rx_complete()
+                    rx_data_flag = False
+                    self.sock.close()
 
     def stop(self):
         self.terminate()

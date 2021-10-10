@@ -35,8 +35,7 @@ message SignalConfig
 {
     optional FUNCTION_TYPE function = 1;
     optional MODE mode = 2;
-    optional uint32 total_len = 5; //Nr of stereo samples
-    optional float frequency = 6;
+    optional uint32 frequency = 6;
     optional float amplitude = 7;
 }
 

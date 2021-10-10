@@ -20,7 +20,7 @@ class DataProc():
         self.right_avg_fft = np.zeros([self.avg_nr, 2048], dtype=complex)
         self.idx = 0
 
-        #Impedance calculation
+        # Impedance calculation
         self.resistor = 1000
         self.impedance_calc = False
 
@@ -56,8 +56,8 @@ class DataProc():
     # Gets called whenever the UDP data has arrived, from audio_plot
     @pyqtSlot()
     def data_rdy_slot(self):
-        left_y = self.data_source.left_samples.astype(float) / 2 ** 31 / 0.64
-        right_y = self.data_source.right_samples.astype(float) / 2 ** 31 / 0.64
+        left_y = self.data_source.left_samples.astype(float) / 2 ** 31 / 0.699
+        right_y = self.data_source.right_samples.astype(float) / 2 ** 31 / 0.693
 
         # delay = client.Client().get_delay()
         delay = 0
@@ -73,8 +73,8 @@ class DataProc():
         right_y = right_y[start:end]
         right_plot_y = right_y * self.window_function[self.pcm_windowing](len(right_y))
         if self.pcm_mode == r"L + R":
-            self.grPCM.plot(left_plot_y, pen="r", clear=True)
-            self.grPCM.plot(right_plot_y, pen="b", clear=False)
+            self.grPCM.plot(left_plot_y, pen="b", clear=True)
+            self.grPCM.plot(right_plot_y, pen="r", clear=False)
         elif self.pcm_mode == r"L(R)":
             self.grPCM.plot(right_plot_y, left_plot_y, pen="b", clear=True)
         elif self.pcm_mode == r"R(L)":

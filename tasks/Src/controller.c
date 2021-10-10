@@ -36,6 +36,10 @@ static TaskHandle_t tcp_task_handle;
 static struct netconn *controller_conn, *newconn;
 static bool conn_accepted = false;
 
+/* Signal variables */
+static uint32_t frequency = 1000;
+static float amplitude = 1.0f;
+
 /* Global variables */
 TaskHandle_t controller_adc_task_h;
 TaskHandle_t controller_dac_task_h;
@@ -60,15 +64,13 @@ void controller_init(void)
 
 	if(NULL == tcp_out_stream_buffer_h)
 	{
-		log_msg(LOG_ERR, "controller.c: Stream Buffer Error: %s, line: %d \n\r", __FUNCTION__, __LINE__);
+		log_msg(LOG_ERR, "controller.c: Stream Buffer Error: %s, line: %d", __FUNCTION__, __LINE__);
 	}
 }
 
 void controller_dac_task(void *pvParameters)
 {
 	uint32_t notification = 0;
-	static uint32_t frequency = 94;
-	static float amplitude = 0.8f;
 	uint32_t idx = 0;
 	uint32_t k = 0;
 
@@ -199,14 +201,14 @@ static void controller_tcp_task(void *pvParameters)
 		{
 			/* Put the connection into LISTEN state */
 			netconn_listen(controller_conn);
-			log_msg(LOG_INFO, "Listen OK: %s, line: %d \n\r", __FUNCTION__, __LINE__);
+			log_msg(LOG_INFO, "Listen OK: %s, line: %d", __FUNCTION__, __LINE__);
 			while(1)
 			{
 				/* accept any incoming TCP connection */
 				accept_err = netconn_accept(controller_conn, &newconn);
 				if(accept_err == ERR_OK)
 				{
-					log_msg(LOG_INFO, "Accept OK: %s, line: %d \n\r", __FUNCTION__, __LINE__);
+					log_msg(LOG_INFO, "Accept OK: %s, line: %d", __FUNCTION__, __LINE__);
 					conn_accepted = true;
 
 					/* Write TCP data */
@@ -231,33 +233,38 @@ static void controller_tcp_task(void *pvParameters)
 							else
 							{
 								do_loop = false;
-								log_msg(LOG_ERR, "Write NOK: %s, line: %d \n\r", __FUNCTION__, __LINE__);
+								log_msg(LOG_ERR, "Write NOK: %s, line: %d", __FUNCTION__, __LINE__);
 							}
 						}
-
-//						if(32768 <= bytes_written)
-//						{
-//							do_loop = false;
-//						}
 					}
 
 					conn_accepted = false;
 					netconn_close(newconn);
 					netconn_delete(newconn);
 					xStreamBufferReset(tcp_out_stream_buffer_h);
-					log_msg(LOG_INFO, "Bytes Written: %lu\n\r", bytes_written);
+					log_msg(LOG_INFO, "Bytes Written: %lu", bytes_written);
 					bytes_written = 0;
 				}
 				else
 				{
-					log_msg(LOG_ERR,"Accept NOK: %s, line: %d \n\r", __FUNCTION__, __LINE__);
+					log_msg(LOG_ERR,"Accept NOK: %s, line: %d", __FUNCTION__, __LINE__);
 				}
 			}
 		}
 		else
 		{
-			log_msg(LOG_ERR, "Bind NOK: %s, line: %d \n\r", __FUNCTION__, __LINE__);
+			log_msg(LOG_ERR, "Bind NOK: %s, line: %d", __FUNCTION__, __LINE__);
 		}
 	}
 	vTaskDelete(NULL);
+}
+
+void controller_set_freq(uint32_t freq)
+{
+	frequency = freq;
+}
+
+void controller_set_amp(float amp)
+{
+	amplitude = amp;
 }

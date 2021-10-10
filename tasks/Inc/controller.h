@@ -68,8 +68,10 @@ typedef struct
 
 /* Function declaration */
 
-/* Init function */
+/* Extern function */
 void controller_init(void);
+void controller_set_freq(uint32_t freq);
+void controller_set_amp(float amp);
 
 /* Extern variables */
 extern tController_Sample controller_output_buffer[OUTPUT_BUF_SIZE_STEREO_SAMPLES];

@@ -91,10 +91,12 @@ class Client:
             print("Expected argument in the form set_frequency value")
         else:
             try:
-                frequency = float(arg)
+                frequency = int(arg)
+                if frequency >= 48000:
+                    raise ValueError
                 msg = analyser_pb2.Service()
                 msg.message_type = analyser_pb2.SET_MESSAGE
-                msg.pulsed.frequency = frequency
+                msg.signalconfig.frequency = frequency
                 self.rpc.send_pb_message(msg)
             except Exception as e:
                 print("Exception: {}".format(repr(e)))
@@ -106,12 +108,12 @@ class Client:
         else:
             try:
                 float(arg)
-                amplitude = float(arg)
+                amplitude = float(arg) / 1.6
                 if (amplitude > 1) or (amplitude < -1):
                     amplitude = 1
                 msg = analyser_pb2.Service()
                 msg.message_type = analyser_pb2.SET_MESSAGE
-                msg.pulsed.amplitude = abs(amplitude)
+                msg.signalconfig.amplitude = abs(amplitude)
                 self.rpc.send_pb_message(msg)
             except Exception as e:
                 print("Exception: {}".format(repr(e)))
@@ -183,8 +185,6 @@ class Client:
 
             except Exception as e:
                 print(repr(e))
-
-
 
 
 class RPC:

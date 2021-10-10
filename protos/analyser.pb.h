@@ -45,10 +45,8 @@ typedef struct _SignalConfig {
     FUNCTION_TYPE function;
     bool has_mode;
     MODE mode;
-    bool has_total_len;
-    uint32_t total_len;
     bool has_frequency;
-    float frequency;
+    uint32_t frequency;
     bool has_amplitude;
     float amplitude;
 } SignalConfig;
@@ -88,12 +86,12 @@ extern "C" {
 /* Initializer values for message structs */
 #define Status_init_default                      {0}
 #define Config_init_default                      {0}
-#define SignalConfig_init_default                {false, _FUNCTION_TYPE_MIN, false, _MODE_MIN, false, 0, false, 0, false, 0}
+#define SignalConfig_init_default                {false, _FUNCTION_TYPE_MIN, false, _MODE_MIN, false, 0, false, 0}
 #define Command_init_default                     {false, 0}
 #define Service_init_default                     {0, _MESSAGE_TYPE_MIN, false, Status_init_default, false, Config_init_default, false, SignalConfig_init_default, false, Command_init_default}
 #define Status_init_zero                         {0}
 #define Config_init_zero                         {0}
-#define SignalConfig_init_zero                   {false, _FUNCTION_TYPE_MIN, false, _MODE_MIN, false, 0, false, 0, false, 0}
+#define SignalConfig_init_zero                   {false, _FUNCTION_TYPE_MIN, false, _MODE_MIN, false, 0, false, 0}
 #define Command_init_zero                        {false, 0}
 #define Service_init_zero                        {0, _MESSAGE_TYPE_MIN, false, Status_init_zero, false, Config_init_zero, false, SignalConfig_init_zero, false, Command_init_zero}
 
@@ -101,7 +99,6 @@ extern "C" {
 #define Command_reset_tag                        1
 #define SignalConfig_function_tag                1
 #define SignalConfig_mode_tag                    2
-#define SignalConfig_total_len_tag               5
 #define SignalConfig_frequency_tag               6
 #define SignalConfig_amplitude_tag               7
 #define Service_xfer_id_tag                      1
@@ -125,8 +122,7 @@ extern "C" {
 #define SignalConfig_FIELDLIST(X, a) \
 X(a, STATIC,   OPTIONAL, UENUM,    function,          1) \
 X(a, STATIC,   OPTIONAL, UENUM,    mode,              2) \
-X(a, STATIC,   OPTIONAL, UINT32,   total_len,         5) \
-X(a, STATIC,   OPTIONAL, FLOAT,    frequency,         6) \
+X(a, STATIC,   OPTIONAL, UINT32,   frequency,         6) \
 X(a, STATIC,   OPTIONAL, FLOAT,    amplitude,         7)
 #define SignalConfig_CALLBACK NULL
 #define SignalConfig_DEFAULT NULL
@@ -166,9 +162,9 @@ extern const pb_msgdesc_t Service_msg;
 /* Maximum encoded size of messages (where known) */
 #define Status_size                              0
 #define Config_size                              0
-#define SignalConfig_size                        20
+#define SignalConfig_size                        15
 #define Command_size                             2
-#define Service_size                             38
+#define Service_size                             33
 
 #ifdef __cplusplus
 } /* extern "C" */

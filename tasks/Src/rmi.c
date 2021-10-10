@@ -8,7 +8,7 @@
 /*
  * Includes
  */
-//#include <controller.h>
+#include <controller.h>
 #include "rmi.h"
 #include "fw_config.h"
 #include "log.h"
@@ -17,10 +17,6 @@
 #include "uart.h"
 #include "cmsis_os.h"
 #include "api.h"
-//#include "pcm1793_dac.h"
-//#include "pcm1802_adc.h"
-
-//#include "callbacks.h"
 /*
  * Global variables
  */
@@ -155,7 +151,18 @@ void rmi_task_process(void *pvParameters)
 			/* Start processing the message */
 			if(MESSAGE_TYPE_SET_MESSAGE == service_msg_in.message_type)
 			{
+				if(service_msg_in.has_signalconfig)
+				{
+					if(service_msg_in.signalconfig.has_frequency)
+					{
+						controller_set_freq(service_msg_in.signalconfig.frequency);
+					}
 
+					if(service_msg_in.signalconfig.has_amplitude)
+					{
+						controller_set_amp(service_msg_in.signalconfig.amplitude);
+					}
+				}
 			}
 			else if(MESSAGE_TYPE_GET_MESSAGE == service_msg_in.message_type)
 			{
