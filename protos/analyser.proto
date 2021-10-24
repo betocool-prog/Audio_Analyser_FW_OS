@@ -9,10 +9,10 @@ enum MESSAGE_TYPE
     ACTION_MESSAGE = 2;
 }
 
-enum MODE
+enum OP_MODE
 {
     FREE_RUNNING = 0;
-    PULSED = 1;
+    SYNC = 1;
 }
 
 enum FUNCTION_TYPE
@@ -34,9 +34,13 @@ message Config
 message SignalConfig
 {
     optional FUNCTION_TYPE function = 1;
-    optional MODE mode = 2;
+    optional OP_MODE op_mode = 2;
     optional uint32 frequency = 6;
     optional float amplitude = 7;
+    optional uint32 delay = 8;
+    optional uint32 signal_preamble = 9;
+    optional uint32 signal_len = 10;
+    optional uint32 signal_end = 11;
 }
 
 message Command

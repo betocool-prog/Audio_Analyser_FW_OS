@@ -18,6 +18,7 @@
 #include "cmsis_os.h"
 #include "task.h"
 #include "stream_buffer.h"
+#include "rmi.h"
 
 /* Defines */
 #define FS									96000.0
@@ -72,11 +73,28 @@ typedef struct
 void controller_init(void);
 void controller_set_freq(uint32_t freq);
 void controller_set_amp(float amp);
+void controller_set_op_mode(OP_MODE mode);
+void controller_set_func(FUNCTION_TYPE func);
+void controller_set_signal_preamble(uint32_t val);
+void controller_set_signal_len(uint32_t val);
+void controller_set_signal_end(uint32_t val);
+uint32_t controller_get_freq(void);
+float controller_get_amp(void);
+OP_MODE controller_get_op_mode(void);
+FUNCTION_TYPE controller_get_func(void);
+uint32_t controller_get_delay(void);
 
 /* Extern variables */
 extern tController_Sample controller_output_buffer[OUTPUT_BUF_SIZE_STEREO_SAMPLES];
 extern tController_Sample controller_input_buffer[INPUT_BUF_SIZE_STEREO_SAMPLES];
 extern TaskHandle_t controller_adc_task_h;
 extern TaskHandle_t controller_dac_task_h;
+
+extern bool conn_accepted;
+extern uint16_t start_ticks;
+extern uint16_t stop_ticks;
+extern bool got_start_ticks;
+extern uint16_t diff_ticks;
+extern bool got_stop_ticks;
 
 #endif /* CONTROLLER_H_ */

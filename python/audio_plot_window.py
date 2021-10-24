@@ -132,9 +132,9 @@ class AudioPlotMainWindow(QtWidgets.QMainWindow):
 
         # PCM Grid Layout
         layout = QtWidgets.QHBoxLayout()
-        self.buttons["get_data"] = QtWidgets.QPushButton("Get ADC Data")
+        self.buttons["free_running"] = QtWidgets.QPushButton("Free Running")
         self.buttons["single_shot"] = QtWidgets.QPushButton("Single Shot")
-        layout.addWidget(self.buttons["get_data"])
+        layout.addWidget(self.buttons["free_running"])
         layout.addWidget(self.buttons["single_shot"])
         layout.addSpacerItem(
             QtWidgets.QSpacerItem(2, 4, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding))

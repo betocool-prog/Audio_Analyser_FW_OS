@@ -14,26 +14,33 @@ class Controller(QObject):
 
         super().__init__()
 
-        self.getting_data = False
+        self.signal_config = client.analyser_pb2.SignalConfig()
+        self.signal_config.function = client.analyser_pb2.SINE
+        self.signal_config.op_mode = client.analyser_pb2.SYNC
+        self.signal_config.frequency = 1000
+        self.signal_config.amplitude = 0 / 1.6
+        self.signal_config.signal_preamble = 0
+        self.signal_config.signal_len = 4096
+        self.signal_config.signal_end = 0
+        self.sync_samples_max = 485
+        self.fft_size = 8192 * 4
 
         self.timer = QTimer()
 
+        self.tcp_client = tcp_c_t.TCPClientThread()
+        self.tcp_client.rx_complete_signal.connect(self.data_rdy_slot)
+
         self.processor = data_proc.DataProc()
+        self.processor.set_data_source(self.tcp_client)
+
         self.main_window = apw.AudioPlotMainWindow()
         self.main_window.set_fft_graph(self.processor.grFFT)
         self.main_window.set_pcm_graph(self.processor.grPCM)
         self.main_window.build_window()
-
-        self.tcp_client = tcp_c_t.TCPClientThread()
-
-        self.processor.set_data_source(self.tcp_client)
-
-        self.tcp_client.rx_complete_signal.connect(self.data_rdy_slot)
-
         # Connect signals and slots
         # Start / stop getting data
         self.timer.timeout.connect(self.timeout)
-        self.main_window.buttons["get_data"].clicked.connect(self.get_adc_data_clicked)
+        self.main_window.buttons["free_running"].clicked.connect(self.get_free_running_clicked)
         self.main_window.buttons["single_shot"].clicked.connect(self.get_single_shot_clicked)
         # self.main_window.checkboxes["avg"].clicked.connect(self.avg_clicked)
         # self.main_window.checkboxes["x_log"].clicked.connect(self.xlog_clicked)
@@ -70,13 +77,20 @@ class Controller(QObject):
 
     # Gets called when the get data button is pressed
     @pyqtSlot()
-    def get_adc_data_clicked(self):
-        self.tcp_client.samples = -1
+    def get_free_running_clicked(self):
+        self.tcp_client.set_expected_len(self.signal_config.signal_len * 8)
         self.tcp_client.start()
 
     @pyqtSlot()
     def get_single_shot_clicked(self):
-        self.tcp_client.samples = 4096
+        freq = self.signal_config.frequency
+        self.signal_config.op_mode = client.analyser_pb2.SYNC;
+        self.signal_config.function = client.analyser_pb2.SINE;
+        self.signal_config.signal_preamble = 0;
+        self.signal_config.signal_len = int(int(self.fft_size * freq / 96000) * 96000 / freq)
+        self.signal_config.signal_end = self.fft_size - self.signal_config.signal_len
+        client.Client().set_signal_config(self.signal_config)
+        self.tcp_client.set_expected_len((self.sync_samples_max + self.fft_size) * 8)
         self.tcp_client.start()
 
     # Gets called when the average button is pressed

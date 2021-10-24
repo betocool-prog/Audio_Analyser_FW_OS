@@ -18,10 +18,13 @@ class TCPClientThread(QThread):
         self.right_samples = None
         self.sock = None
         self.connected = False
-        self.samples = 0
+        self.len_expected = 0
 
     def rx_complete(self):
         self.rx_complete_signal.emit()
+
+    def set_expected_len(self, length):
+        self.len_expected = length
 
     def run(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -52,18 +55,13 @@ class TCPClientThread(QThread):
                         total_data.extend(data)
                         total_len += len(data)
 
-                    if self.samples != -1:
-                        if total_len >= self.samples * 8:
-                            rx_data_flag = False
-
                 except socket.timeout as e:
                     print("Socket timeout: {}".format(e))
                     total_len = 0
                     total_data = bytearray()
                     rx_data_flag = False
 
-                # if self.samples != -1:
-                if total_len >= (4096 * 8):
+                if total_len >= self.len_expected:
                     print("Total Len: {}".format(total_len))
                     samples = np.frombuffer(total_data, dtype=self.sample_type)
                     total_len = 0

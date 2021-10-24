@@ -76,10 +76,40 @@ void DMA2_Stream3_IRQHandler(void)
 	{
 		DMA2->LIFCR |= DMA_LIFCR_CTCIF3;
 		xTaskNotifyFromISR(controller_dac_task_h, DAC_TC_NOTIF, eSetBits, &pxHigherPriorityTaskWoken);
+
+		if(got_start_ticks && (!got_stop_ticks))
+		{
+			got_stop_ticks = true;
+			stop_ticks = TIM7->CNT;
+
+			if(start_ticks > stop_ticks)
+			{
+				diff_ticks = 0xFFFF - start_ticks + stop_ticks;
+			}
+			else
+			{
+				diff_ticks = stop_ticks - start_ticks;
+			}
+		}
 	}
 	else if(DMA2->LISR & DMA_LISR_HTIF3)
 	{
 		DMA2->LIFCR |= DMA_LIFCR_CHTIF3;
 		xTaskNotifyFromISR(controller_dac_task_h, DAC_HT_NOTIF, eSetBits, &pxHigherPriorityTaskWoken);
+
+		if(got_start_ticks && (!got_stop_ticks))
+		{
+			got_stop_ticks = true;
+			stop_ticks = TIM7->CNT;
+
+			if(start_ticks > stop_ticks)
+			{
+				diff_ticks = 0xFFFF - start_ticks + stop_ticks;
+			}
+			else
+			{
+				diff_ticks = stop_ticks - start_ticks;
+			}
+		}
 	}
 }

@@ -43,16 +43,8 @@ uint32_t log_msg(eLogType type, const char *format, ...)
 {
 	uint32_t bytes_written = 0;
 	uint32_t bytes_sent = 0;
-	uint32_t subseconds = 0;
-
-//	RTC_TimeTypeDef time = {0};
-//	RTC_DateTypeDef date = {0};
 
 	vPortEnterCritical();
-
-//	HAL_RTC_GetTime(&hrtc, &time, RTC_FORMAT_BIN);
-//	HAL_RTC_GetDate(&hrtc, &date, RTC_FORMAT_BIN);
-//	subseconds = ((time.SecondFraction - time.SubSeconds) * 1000) / (time.SecondFraction + 1);
 
 	va_start(args, format);
 
@@ -62,30 +54,18 @@ uint32_t log_msg(eLogType type, const char *format, ...)
 
 	if(LOG_INFO == type)
 	{
-//		bytes_written = snprintf((char*)log_msg_in_buf, LOG_MSG_IN_LEN,
-//				"%02d-%02d-%02dT%02d:%02d:%02d.%03lu: [INFO] %s\n\r",
-//				date.Year, date.Month, date.Date, time.Hours, time.Minutes, time.Seconds, subseconds,
-//				temp_buf);
 		bytes_written = snprintf((char*)log_msg_in_buf, LOG_MSG_IN_LEN,
 				"[INFO] %s\n\r", temp_buf);
 		bytes_sent = log_send_to_stream(log_msg_in_buf, bytes_written);
 	}
 	else if(LOG_WARN == type)
 	{
-//		bytes_written = snprintf((char*)log_msg_in_buf, LOG_MSG_IN_LEN,
-//				"%02d-%02d-%02dT%02d:%02d:%02d.%03lu: [WARN] %s\n\r",
-//				date.Year, date.Month, date.Date, time.Hours, time.Minutes, time.Seconds, subseconds,
-//				temp_buf);
 		bytes_written = snprintf((char*)log_msg_in_buf, LOG_MSG_IN_LEN,
 				"[WARN] %s\n\r", temp_buf);
 		bytes_sent = log_send_to_stream(log_msg_in_buf, bytes_written);
 	}
 	else if(LOG_ERR == type)
 	{
-//		bytes_written = snprintf((char*)log_msg_in_buf, LOG_MSG_IN_LEN,
-//				"%02d-%02d-%02dT%02d:%02d:%02d.%03lu: [ERR] %s\n\r",
-//				date.Year, date.Month, date.Date, time.Hours, time.Minutes, time.Seconds, subseconds,
-//				temp_buf);
 		bytes_written = snprintf((char*)log_msg_in_buf, LOG_MSG_IN_LEN,
 				"[ERR] %s\n\r", temp_buf);
 		bytes_sent = log_send_to_stream(log_msg_in_buf, bytes_written);

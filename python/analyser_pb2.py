@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='analyser.proto',
   package='',
   syntax='proto2',
-  serialized_pb=_b('\n\x0e\x61nalyser.proto\"\x08\n\x06Status\"\x08\n\x06\x43onfig\"k\n\x0cSignalConfig\x12 \n\x08\x66unction\x18\x01 \x01(\x0e\x32\x0e.FUNCTION_TYPE\x12\x13\n\x04mode\x18\x02 \x01(\x0e\x32\x05.MODE\x12\x11\n\tfrequency\x18\x06 \x01(\r\x12\x11\n\tamplitude\x18\x07 \x01(\x02\"\x18\n\x07\x43ommand\x12\r\n\x05reset\x18\x01 \x01(\x08\"\xb1\x01\n\x07Service\x12\x0f\n\x07xfer_id\x18\x01 \x02(\r\x12#\n\x0cmessage_type\x18\x02 \x02(\x0e\x32\r.MESSAGE_TYPE\x12\x17\n\x06status\x18\x03 \x01(\x0b\x32\x07.Status\x12\x17\n\x06\x63onfig\x18\x04 \x01(\x0b\x32\x07.Config\x12#\n\x0csignalconfig\x18\x05 \x01(\x0b\x32\r.SignalConfig\x12\x19\n\x07\x63ommand\x18\x06 \x01(\x0b\x32\x08.Command*D\n\x0cMESSAGE_TYPE\x12\x0f\n\x0bSET_MESSAGE\x10\x00\x12\x0f\n\x0bGET_MESSAGE\x10\x01\x12\x12\n\x0e\x41\x43TION_MESSAGE\x10\x02*$\n\x04MODE\x12\x10\n\x0c\x46REE_RUNNING\x10\x00\x12\n\n\x06PULSED\x10\x01*&\n\rFUNCTION_TYPE\x12\x08\n\x04SINE\x10\x00\x12\x0b\n\x07IMPULSE\x10\x01')
+  serialized_pb=_b('\n\x0e\x61nalyser.proto\"\x08\n\x06Status\"\x08\n\x06\x43onfig\"\xc1\x01\n\x0cSignalConfig\x12 \n\x08\x66unction\x18\x01 \x01(\x0e\x32\x0e.FUNCTION_TYPE\x12\x19\n\x07op_mode\x18\x02 \x01(\x0e\x32\x08.OP_MODE\x12\x11\n\tfrequency\x18\x06 \x01(\r\x12\x11\n\tamplitude\x18\x07 \x01(\x02\x12\r\n\x05\x64\x65lay\x18\x08 \x01(\r\x12\x17\n\x0fsignal_preamble\x18\t \x01(\r\x12\x12\n\nsignal_len\x18\n \x01(\r\x12\x12\n\nsignal_end\x18\x0b \x01(\r\"\x18\n\x07\x43ommand\x12\r\n\x05reset\x18\x01 \x01(\x08\"\xb1\x01\n\x07Service\x12\x0f\n\x07xfer_id\x18\x01 \x02(\r\x12#\n\x0cmessage_type\x18\x02 \x02(\x0e\x32\r.MESSAGE_TYPE\x12\x17\n\x06status\x18\x03 \x01(\x0b\x32\x07.Status\x12\x17\n\x06\x63onfig\x18\x04 \x01(\x0b\x32\x07.Config\x12#\n\x0csignalconfig\x18\x05 \x01(\x0b\x32\r.SignalConfig\x12\x19\n\x07\x63ommand\x18\x06 \x01(\x0b\x32\x08.Command*D\n\x0cMESSAGE_TYPE\x12\x0f\n\x0bSET_MESSAGE\x10\x00\x12\x0f\n\x0bGET_MESSAGE\x10\x01\x12\x12\n\x0e\x41\x43TION_MESSAGE\x10\x02*%\n\x07OP_MODE\x12\x10\n\x0c\x46REE_RUNNING\x10\x00\x12\x08\n\x04SYNC\x10\x01*&\n\rFUNCTION_TYPE\x12\x08\n\x04SINE\x10\x00\x12\x0b\n\x07IMPULSE\x10\x01')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -45,15 +45,15 @@ _MESSAGE_TYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=353,
-  serialized_end=421,
+  serialized_start=440,
+  serialized_end=508,
 )
 _sym_db.RegisterEnumDescriptor(_MESSAGE_TYPE)
 
 MESSAGE_TYPE = enum_type_wrapper.EnumTypeWrapper(_MESSAGE_TYPE)
-_MODE = _descriptor.EnumDescriptor(
-  name='MODE',
-  full_name='MODE',
+_OP_MODE = _descriptor.EnumDescriptor(
+  name='OP_MODE',
+  full_name='OP_MODE',
   filename=None,
   file=DESCRIPTOR,
   values=[
@@ -62,18 +62,18 @@ _MODE = _descriptor.EnumDescriptor(
       options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='PULSED', index=1, number=1,
+      name='SYNC', index=1, number=1,
       options=None,
       type=None),
   ],
   containing_type=None,
   options=None,
-  serialized_start=423,
-  serialized_end=459,
+  serialized_start=510,
+  serialized_end=547,
 )
-_sym_db.RegisterEnumDescriptor(_MODE)
+_sym_db.RegisterEnumDescriptor(_OP_MODE)
 
-MODE = enum_type_wrapper.EnumTypeWrapper(_MODE)
+OP_MODE = enum_type_wrapper.EnumTypeWrapper(_OP_MODE)
 _FUNCTION_TYPE = _descriptor.EnumDescriptor(
   name='FUNCTION_TYPE',
   full_name='FUNCTION_TYPE',
@@ -91,8 +91,8 @@ _FUNCTION_TYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=461,
-  serialized_end=499,
+  serialized_start=549,
+  serialized_end=587,
 )
 _sym_db.RegisterEnumDescriptor(_FUNCTION_TYPE)
 
@@ -101,7 +101,7 @@ SET_MESSAGE = 0
 GET_MESSAGE = 1
 ACTION_MESSAGE = 2
 FREE_RUNNING = 0
-PULSED = 1
+SYNC = 1
 SINE = 0
 IMPULSE = 1
 
@@ -170,7 +170,7 @@ _SIGNALCONFIG = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='mode', full_name='SignalConfig.mode', index=1,
+      name='op_mode', full_name='SignalConfig.op_mode', index=1,
       number=2, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -190,6 +190,34 @@ _SIGNALCONFIG = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='delay', full_name='SignalConfig.delay', index=4,
+      number=8, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='signal_preamble', full_name='SignalConfig.signal_preamble', index=5,
+      number=9, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='signal_len', full_name='SignalConfig.signal_len', index=6,
+      number=10, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='signal_end', full_name='SignalConfig.signal_end', index=7,
+      number=11, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -202,8 +230,8 @@ _SIGNALCONFIG = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=38,
-  serialized_end=145,
+  serialized_start=39,
+  serialized_end=232,
 )
 
 
@@ -233,8 +261,8 @@ _COMMAND = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=147,
-  serialized_end=171,
+  serialized_start=234,
+  serialized_end=258,
 )
 
 
@@ -299,12 +327,12 @@ _SERVICE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=174,
-  serialized_end=351,
+  serialized_start=261,
+  serialized_end=438,
 )
 
 _SIGNALCONFIG.fields_by_name['function'].enum_type = _FUNCTION_TYPE
-_SIGNALCONFIG.fields_by_name['mode'].enum_type = _MODE
+_SIGNALCONFIG.fields_by_name['op_mode'].enum_type = _OP_MODE
 _SERVICE.fields_by_name['message_type'].enum_type = _MESSAGE_TYPE
 _SERVICE.fields_by_name['status'].message_type = _STATUS
 _SERVICE.fields_by_name['config'].message_type = _CONFIG
@@ -316,7 +344,7 @@ DESCRIPTOR.message_types_by_name['SignalConfig'] = _SIGNALCONFIG
 DESCRIPTOR.message_types_by_name['Command'] = _COMMAND
 DESCRIPTOR.message_types_by_name['Service'] = _SERVICE
 DESCRIPTOR.enum_types_by_name['MESSAGE_TYPE'] = _MESSAGE_TYPE
-DESCRIPTOR.enum_types_by_name['MODE'] = _MODE
+DESCRIPTOR.enum_types_by_name['OP_MODE'] = _OP_MODE
 DESCRIPTOR.enum_types_by_name['FUNCTION_TYPE'] = _FUNCTION_TYPE
 
 Status = _reflection.GeneratedProtocolMessageType('Status', (_message.Message,), dict(

@@ -41,6 +41,9 @@ class CLI(cmd.Cmd):
     def do_set_function_type(self, arg):
         self.client.set_function_type(arg)
 
+    def do_get_signal_config(self, arg):
+        self.client.get_signal_config(arg)
+
 
 class Client:
 
@@ -118,22 +121,6 @@ class Client:
             except Exception as e:
                 print("Exception: {}".format(repr(e)))
 
-    def set_amplitude_v(self, arg):
-
-        if arg is None:
-            print("Expected argument in the form set_amplitude_v value")
-        else:
-            try:
-                amplitude = float(arg) / 1.75
-                if (amplitude > 1) or (amplitude < -1):
-                    amplitude = 1
-                msg = analyser_pb2.Service()
-                msg.message_type = analyser_pb2.SET_MESSAGE
-                msg.pulsed.amplitude = abs(amplitude)
-                self.rpc.send_pb_message(msg)
-            except Exception as e:
-                print("Exception: {}".format(repr(e)))
-
     def set_mode(self, arg):
 
         value = 0
@@ -141,20 +128,12 @@ class Client:
         if arg is None:
             print("Expected argument in the form set_mode MODE")
 
-        elif arg.isnumeric():
-
-            if (int(arg) == analyser_pb2.PULSED) or (int(arg) == analyser_pb2.CONTINUOUS):
-                value = int(arg)
-
-            else:
-                print("Expected Values {} or {}".format(analyser_pb2.PULSED, analyser_pb2.CONTINUOUS))
-
         else:
             try:
                 value = getattr(analyser_pb2, arg)
                 msg = analyser_pb2.Service()
                 msg.message_type = analyser_pb2.SET_MESSAGE
-                msg.mode = value
+                msg.signalconfig.op_mode = value
                 self.rpc.send_pb_message(msg)
 
             except Exception as e:
@@ -180,12 +159,42 @@ class Client:
                 value = getattr(analyser_pb2, arg)
                 msg = analyser_pb2.Service()
                 msg.message_type = analyser_pb2.SET_MESSAGE
-                msg.pulsed.function_type = value
+                msg.signalconfig.function = value
                 self.rpc.send_pb_message(msg)
 
             except Exception as e:
                 print(repr(e))
 
+    def set_signal_config(self, arg):
+
+        try:
+            msg = analyser_pb2.Service()
+            msg.message_type = analyser_pb2.SET_MESSAGE
+            msg.signalconfig.frequency = arg.frequency
+            msg.signalconfig.amplitude = arg.amplitude
+            msg.signalconfig.signal_preamble = arg.signal_preamble
+            msg.signalconfig.signal_len = arg.signal_len
+            msg.signalconfig.signal_end = arg.signal_end
+            msg.signalconfig.op_mode = arg.op_mode
+            self.rpc.send_pb_message(msg)
+            # reply = self.rpc.send_pb_message_and_wait(msg)
+            # print(reply)
+
+        except Exception as e:
+            print(repr(e))
+
+    def get_signal_config(self, arg=None):
+        msg = analyser_pb2.Service()
+        msg.message_type = analyser_pb2.GET_MESSAGE;
+        msg.signalconfig.SetInParent()
+        reply = self.rpc.send_pb_message_and_wait(msg)
+
+        if reply is not None:
+            rsp = analyser_pb2.Service()
+            rsp.ParseFromString(reply)
+            # print(rsp)
+
+        return rsp.signalconfig
 
 class RPC:
 

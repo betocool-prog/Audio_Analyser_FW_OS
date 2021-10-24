@@ -84,13 +84,21 @@ void DMA2_Stream2_IRQHandler(void)
 	{
 		DMA2->LIFCR |= DMA_LIFCR_CTCIF2;
 		xTaskNotifyFromISR(controller_adc_task_h, ADC_TC_NOTIF, eSetValueWithOverwrite, &pxHigherPriorityTaskWoken);
-
+		if(conn_accepted && (!got_start_ticks))
+		{
+			start_ticks = TIM7->CNT;
+			got_start_ticks = true;
+		}
 	}
-
-	if(DMA2->LISR & DMA_LISR_HTIF2)
+	else if(DMA2->LISR & DMA_LISR_HTIF2)
 	{
 		DMA2->LIFCR |= DMA_LIFCR_CHTIF2;
 		xTaskNotifyFromISR(controller_adc_task_h, ADC_HT_NOTIF, eSetValueWithOverwrite, &pxHigherPriorityTaskWoken);
+		if(conn_accepted && (!got_start_ticks))
+		{
+			start_ticks = TIM7->CNT;
+			got_start_ticks = true;
+		}
 	}
 
 	if(DMA2->LISR & DMA_LISR_TEIF2)
