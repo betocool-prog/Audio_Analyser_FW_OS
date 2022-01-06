@@ -62,7 +62,7 @@ class TCPClientThread(QThread):
                     rx_data_flag = False
 
                 if total_len >= self.len_expected:
-                    print("Total Len: {}".format(total_len))
+                    # print("Total Len: {}".format(total_len))
                     samples = np.frombuffer(total_data, dtype=self.sample_type)
                     total_len = 0
                     total_data = bytearray()

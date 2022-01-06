@@ -18,25 +18,26 @@ class Controller(QObject):
         self.signal_config.function = client.analyser_pb2.SINE
         self.signal_config.op_mode = client.analyser_pb2.SYNC
         self.signal_config.frequency = 1000
-        self.signal_config.amplitude = 0 / 1.6
+        self.signal_config.amplitude = 1.4 / 1.6
         self.signal_config.signal_preamble = 0
-        self.signal_config.signal_len = 4096
+        self.signal_config.fft_size = 4096
+        self.signal_config.signal_len = self.signal_config.fft_size
         self.signal_config.signal_end = 0
         self.sync_samples_max = 485
-        self.fft_size = 8192 * 4
 
         self.timer = QTimer()
 
         self.tcp_client = tcp_c_t.TCPClientThread()
         self.tcp_client.rx_complete_signal.connect(self.data_rdy_slot)
 
-        self.processor = data_proc.DataProc()
+        self.processor = data_proc.DataProc(self.signal_config)
         self.processor.set_data_source(self.tcp_client)
 
         self.main_window = apw.AudioPlotMainWindow()
         self.main_window.set_fft_graph(self.processor.grFFT)
         self.main_window.set_pcm_graph(self.processor.grPCM)
         self.main_window.build_window()
+
         # Connect signals and slots
         # Start / stop getting data
         self.timer.timeout.connect(self.timeout)
@@ -47,11 +48,11 @@ class Controller(QObject):
         # self.main_window.checkboxes["show_fft_left"].clicked.connect(self.fft_show_clicked)
         # self.main_window.checkboxes["show_fft_right"].clicked.connect(self.fft_show_clicked)
         #
-        # self.main_window.fft_rb_group.buttonClicked.connect(self.function_clicked)
+        self.main_window.fft_rb_group.buttonClicked.connect(self.function_clicked)
         # self.main_window.pcm_rb_group.buttonClicked.connect(self.l_r_clicked)
         #
-        # self.main_window.line_edit["Frequency"].returnPressed.connect(self.frequency_changed)
-        # self.main_window.line_edit["Amplitude"].returnPressed.connect(self.amplitude_changed)
+        self.main_window.line_edit["Frequency"].returnPressed.connect(self.frequency_changed)
+        self.main_window.line_edit["Amplitude"].returnPressed.connect(self.amplitude_changed)
         # self.main_window.line_edit["Impedance"].returnPressed.connect(self.impedance_changed)
         #
         # self.main_window.drop_down["fft_windowing"].activated.connect(self.fft_windowing_changed)
@@ -61,36 +62,36 @@ class Controller(QObject):
         # self.main_window.drop_down["fft_windowing"].setCurrentIndex(3)
         #
         # # Set default client settings
-        # client.Client().set_function_type("SINE")
-        # client.Client().set_frequency("1000")
-        # client.Client().set_amplitude_v("1.5")
+        client.Client().set_signal_config(self.signal_config)
 
     # Gets called whenever the TCP data has arrived
     @pyqtSlot()
     def data_rdy_slot(self):
         self.processor.data_rdy_slot()
 
-        # if self.getting_data:
-        #     self.timer.setInterval(10)
-        #     self.timer.setSingleShot(True)
-        #     self.timer.start()
+        if self.signal_config.op_mode == getattr(client.analyser_pb2, 'FREE_RUNNING'):
+            self.timer.setInterval(10)
+            self.timer.setSingleShot(True)
+            self.timer.start()
 
     # Gets called when the get data button is pressed
     @pyqtSlot()
     def get_free_running_clicked(self):
-        self.tcp_client.set_expected_len(self.signal_config.signal_len * 8)
+        self.signal_config.op_mode = getattr(client.analyser_pb2, 'FREE_RUNNING')
+        client.Client().set_signal_config(self.signal_config)
+        self.tcp_client.set_expected_len(self.signal_config.fft_size * 8)
         self.tcp_client.start()
 
     @pyqtSlot()
     def get_single_shot_clicked(self):
         freq = self.signal_config.frequency
         self.signal_config.op_mode = client.analyser_pb2.SYNC;
-        self.signal_config.function = client.analyser_pb2.SINE;
+        # self.signal_config.function = client.analyser_pb2.SINE;
         self.signal_config.signal_preamble = 0;
-        self.signal_config.signal_len = int(int(self.fft_size * freq / 96000) * 96000 / freq)
-        self.signal_config.signal_end = self.fft_size - self.signal_config.signal_len
+        self.signal_config.signal_len = int(int(self.signal_config.fft_size * freq / 96000) * 96000 / freq)
+        self.signal_config.signal_end = self.signal_config.fft_size - self.signal_config.signal_len
         client.Client().set_signal_config(self.signal_config)
-        self.tcp_client.set_expected_len((self.sync_samples_max + self.fft_size) * 8)
+        self.tcp_client.set_expected_len((self.sync_samples_max + self.signal_config.fft_size) * 8)
         self.tcp_client.start()
 
     # Gets called when the average button is pressed
@@ -122,21 +123,25 @@ class Controller(QObject):
     # Gets called when the function radiobuttons are pressed
     @pyqtSlot()
     def function_clicked(self):
+
         for item in self.main_window.fft_rb.items():
             if item[1].isChecked():
                 bt_name = item[1].text()
                 break
 
-        if bt_name == "Impedance":
-            res_value = self.main_window.line_edit[bt_name].text()
-            if res_value.isdecimal():
-                client.Client().set_function_type("IMPULSE")
-                self.processor.impedance_calc = True
-                self.processor.resistor = float(res_value)
-                print(self.processor.resistor)
-        else:
-            self.processor.impedance_calc = False
-            client.Client().set_function_type(bt_name.upper())
+        if bt_name == "Impulse":
+            try:
+                self.signal_config.function = client.analyser_pb2.IMPULSE
+                client.Client().set_signal_config(self.signal_config)
+            except Exception as e:
+                print("Impulse Changed Exception: {}".format(repr(e)))
+
+        if bt_name == "Sine":
+            try:
+                self.signal_config.function = client.analyser_pb2.SINE
+                client.Client().set_signal_config(self.signal_config)
+            except Exception as e:
+                print("Sine Changed Exception: {}".format(repr(e)))
 
     # Gets called when the function radiobuttons are pressed
     @pyqtSlot()
@@ -155,14 +160,19 @@ class Controller(QObject):
     @pyqtSlot()
     def frequency_changed(self):
         freq_val = self.main_window.line_edit["Frequency"].text()
-        client.Client().set_frequency(freq_val)
+        try:
+            self.signal_config.frequency = int(freq_val)
+            client.Client().set_signal_config(self.signal_config)
+        except Exception as e:
+            print("Frequency Changed Exception: {}".format(repr(e)))
 
     # Gets called when the amplitude changes
     @pyqtSlot()
     def amplitude_changed(self):
         amp_val = self.main_window.line_edit["Amplitude"].text()
         try:
-            client.Client().set_amplitude_v(amp_val)
+            self.signal_config.amplitude = float(amp_val) / 1.6
+            client.Client().set_signal_config(self.signal_config)
         except Exception as e:
             print("Amplitude Changed Exception: {}".format(repr(e)))
 
@@ -181,4 +191,4 @@ class Controller(QObject):
     # Gets called when QTimer expires after timing out
     @pyqtSlot()
     def timeout(self):
-        client.Client().get_adc_data()
+        self.get_free_running_clicked()

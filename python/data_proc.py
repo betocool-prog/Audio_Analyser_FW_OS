@@ -9,10 +9,11 @@ import client
 
 class DataProc():
 
-    def __init__(self):
+    def __init__(self, signal_config=None):
 
         self.average = False
         self.avg_nr = 64
+        self.signal_config = signal_config
 
         self.pcm_mode = r"L + R"
 
@@ -64,9 +65,13 @@ class DataProc():
         # delay = 0
         delay_samples = int(delay * 96 / 10000) + 360
         # delay_position = 182 + 205 - delay_samples
-        print("Delay samples: {}".format(delay_samples))
-        start = delay_samples
-        end = delay_samples + 8192 * 4
+        # print("Delay samples: {}".format(delay_samples))
+        if self.signal_config.op_mode == getattr(client.analyser_pb2, 'SYNC'):
+            start = delay_samples
+            end = delay_samples + self.signal_config.fft_size # 8192 * 4
+        else:
+            start = 0
+            end = self.signal_config.fft_size
 
         left_x = np.linspace(0, 4096 - 1, 4096)
         right_x = np.linspace(0, 4096 - 1, 4096)
@@ -120,3 +125,6 @@ class DataProc():
 
     def set_data_source(self, data_source):
         self.data_source = data_source
+
+    def set_signal_config(self, signal_config):
+        self.signal_config = signal_config

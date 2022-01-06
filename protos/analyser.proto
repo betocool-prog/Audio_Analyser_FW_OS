@@ -41,6 +41,7 @@ message SignalConfig
     optional uint32 signal_preamble = 9;
     optional uint32 signal_len = 10;
     optional uint32 signal_end = 11;
+    optional uint32 fft_size = 12;
 }
 
 message Command

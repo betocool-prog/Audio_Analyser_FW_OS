@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='analyser.proto',
   package='',
   syntax='proto2',
-  serialized_pb=_b('\n\x0e\x61nalyser.proto\"\x08\n\x06Status\"\x08\n\x06\x43onfig\"\xc1\x01\n\x0cSignalConfig\x12 \n\x08\x66unction\x18\x01 \x01(\x0e\x32\x0e.FUNCTION_TYPE\x12\x19\n\x07op_mode\x18\x02 \x01(\x0e\x32\x08.OP_MODE\x12\x11\n\tfrequency\x18\x06 \x01(\r\x12\x11\n\tamplitude\x18\x07 \x01(\x02\x12\r\n\x05\x64\x65lay\x18\x08 \x01(\r\x12\x17\n\x0fsignal_preamble\x18\t \x01(\r\x12\x12\n\nsignal_len\x18\n \x01(\r\x12\x12\n\nsignal_end\x18\x0b \x01(\r\"\x18\n\x07\x43ommand\x12\r\n\x05reset\x18\x01 \x01(\x08\"\xb1\x01\n\x07Service\x12\x0f\n\x07xfer_id\x18\x01 \x02(\r\x12#\n\x0cmessage_type\x18\x02 \x02(\x0e\x32\r.MESSAGE_TYPE\x12\x17\n\x06status\x18\x03 \x01(\x0b\x32\x07.Status\x12\x17\n\x06\x63onfig\x18\x04 \x01(\x0b\x32\x07.Config\x12#\n\x0csignalconfig\x18\x05 \x01(\x0b\x32\r.SignalConfig\x12\x19\n\x07\x63ommand\x18\x06 \x01(\x0b\x32\x08.Command*D\n\x0cMESSAGE_TYPE\x12\x0f\n\x0bSET_MESSAGE\x10\x00\x12\x0f\n\x0bGET_MESSAGE\x10\x01\x12\x12\n\x0e\x41\x43TION_MESSAGE\x10\x02*%\n\x07OP_MODE\x12\x10\n\x0c\x46REE_RUNNING\x10\x00\x12\x08\n\x04SYNC\x10\x01*&\n\rFUNCTION_TYPE\x12\x08\n\x04SINE\x10\x00\x12\x0b\n\x07IMPULSE\x10\x01')
+  serialized_pb=_b('\n\x0e\x61nalyser.proto\"\x08\n\x06Status\"\x08\n\x06\x43onfig\"\xd3\x01\n\x0cSignalConfig\x12 \n\x08\x66unction\x18\x01 \x01(\x0e\x32\x0e.FUNCTION_TYPE\x12\x19\n\x07op_mode\x18\x02 \x01(\x0e\x32\x08.OP_MODE\x12\x11\n\tfrequency\x18\x06 \x01(\r\x12\x11\n\tamplitude\x18\x07 \x01(\x02\x12\r\n\x05\x64\x65lay\x18\x08 \x01(\r\x12\x17\n\x0fsignal_preamble\x18\t \x01(\r\x12\x12\n\nsignal_len\x18\n \x01(\r\x12\x12\n\nsignal_end\x18\x0b \x01(\r\x12\x10\n\x08\x66\x66t_size\x18\x0c \x01(\r\"\x18\n\x07\x43ommand\x12\r\n\x05reset\x18\x01 \x01(\x08\"\xb1\x01\n\x07Service\x12\x0f\n\x07xfer_id\x18\x01 \x02(\r\x12#\n\x0cmessage_type\x18\x02 \x02(\x0e\x32\r.MESSAGE_TYPE\x12\x17\n\x06status\x18\x03 \x01(\x0b\x32\x07.Status\x12\x17\n\x06\x63onfig\x18\x04 \x01(\x0b\x32\x07.Config\x12#\n\x0csignalconfig\x18\x05 \x01(\x0b\x32\r.SignalConfig\x12\x19\n\x07\x63ommand\x18\x06 \x01(\x0b\x32\x08.Command*D\n\x0cMESSAGE_TYPE\x12\x0f\n\x0bSET_MESSAGE\x10\x00\x12\x0f\n\x0bGET_MESSAGE\x10\x01\x12\x12\n\x0e\x41\x43TION_MESSAGE\x10\x02*%\n\x07OP_MODE\x12\x10\n\x0c\x46REE_RUNNING\x10\x00\x12\x08\n\x04SYNC\x10\x01*&\n\rFUNCTION_TYPE\x12\x08\n\x04SINE\x10\x00\x12\x0b\n\x07IMPULSE\x10\x01')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -45,8 +45,8 @@ _MESSAGE_TYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=440,
-  serialized_end=508,
+  serialized_start=458,
+  serialized_end=526,
 )
 _sym_db.RegisterEnumDescriptor(_MESSAGE_TYPE)
 
@@ -68,8 +68,8 @@ _OP_MODE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=510,
-  serialized_end=547,
+  serialized_start=528,
+  serialized_end=565,
 )
 _sym_db.RegisterEnumDescriptor(_OP_MODE)
 
@@ -91,8 +91,8 @@ _FUNCTION_TYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=549,
-  serialized_end=587,
+  serialized_start=567,
+  serialized_end=605,
 )
 _sym_db.RegisterEnumDescriptor(_FUNCTION_TYPE)
 
@@ -218,6 +218,13 @@ _SIGNALCONFIG = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='fft_size', full_name='SignalConfig.fft_size', index=8,
+      number=12, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -231,7 +238,7 @@ _SIGNALCONFIG = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=39,
-  serialized_end=232,
+  serialized_end=250,
 )
 
 
@@ -261,8 +268,8 @@ _COMMAND = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=234,
-  serialized_end=258,
+  serialized_start=252,
+  serialized_end=276,
 )
 
 
@@ -327,8 +334,8 @@ _SERVICE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=261,
-  serialized_end=438,
+  serialized_start=279,
+  serialized_end=456,
 )
 
 _SIGNALCONFIG.fields_by_name['function'].enum_type = _FUNCTION_TYPE

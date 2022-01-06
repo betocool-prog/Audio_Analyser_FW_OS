@@ -111,7 +111,7 @@ class Client:
         else:
             try:
                 float(arg)
-                amplitude = float(arg) / 1.6
+                amplitude = float(arg)
                 if (amplitude > 1) or (amplitude < -1):
                     amplitude = 1
                 msg = analyser_pb2.Service()
@@ -176,6 +176,7 @@ class Client:
             msg.signalconfig.signal_len = arg.signal_len
             msg.signalconfig.signal_end = arg.signal_end
             msg.signalconfig.op_mode = arg.op_mode
+            msg.signalconfig.function = arg.function
             self.rpc.send_pb_message(msg)
             # reply = self.rpc.send_pb_message_and_wait(msg)
             # print(reply)
