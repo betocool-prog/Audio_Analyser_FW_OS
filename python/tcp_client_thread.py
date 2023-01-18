@@ -11,7 +11,7 @@ class TCPClientThread(QThread):
 
     def __init__(self):
         QThread.__init__(self)
-        self.LOCAL_IP = "192.168.1.144"
+        self.LOCAL_IP = "192.168.2.144"
         self.LOCAL_PORT = 8888
         self.sample_type = np.dtype([('left', np.int32), ('right', np.int32)])
         self.left_samples = None
@@ -30,11 +30,12 @@ class TCPClientThread(QThread):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             # Establish connection to TCP server and exchange data
+            self.sock.bind(("192.168.2.20", 0))
             self.sock.connect((self.LOCAL_IP, self.LOCAL_PORT))
             self.connected = True
 
         except Exception as e:
-            print("Could not connect")
+            print(f"Could not connect: {repr(e)}")
             self.connected = False
 
         if self.connected:

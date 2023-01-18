@@ -200,7 +200,7 @@ class Client:
 class RPC:
 
     def __init__(self):
-        self.UDP_IP = "192.168.1.144"
+        self.UDP_IP = "192.168.2.144"
         self.UDP_PORT = 5003
         self.xfer_id = 0
 

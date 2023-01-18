@@ -20,7 +20,7 @@ class Controller(QObject):
         self.signal_config.frequency = 1000
         self.signal_config.amplitude = 1.4 / 1.6
         self.signal_config.signal_preamble = 0
-        self.signal_config.fft_size = 4096
+        self.signal_config.fft_size = 4096 * 8
         self.signal_config.signal_len = self.signal_config.fft_size
         self.signal_config.signal_end = 0
         self.sync_samples_max = 485
@@ -43,7 +43,7 @@ class Controller(QObject):
         self.timer.timeout.connect(self.timeout)
         self.main_window.buttons["free_running"].clicked.connect(self.get_free_running_clicked)
         self.main_window.buttons["single_shot"].clicked.connect(self.get_single_shot_clicked)
-        # self.main_window.checkboxes["avg"].clicked.connect(self.avg_clicked)
+        self.main_window.checkboxes["avg"].clicked.connect(self.avg_clicked)
         # self.main_window.checkboxes["x_log"].clicked.connect(self.xlog_clicked)
         # self.main_window.checkboxes["show_fft_left"].clicked.connect(self.fft_show_clicked)
         # self.main_window.checkboxes["show_fft_right"].clicked.connect(self.fft_show_clicked)

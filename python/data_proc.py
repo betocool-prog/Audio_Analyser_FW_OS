@@ -12,13 +12,15 @@ class DataProc():
     def __init__(self, signal_config=None):
 
         self.average = False
-        self.avg_nr = 64
+        self.avg_nr = 8
         self.signal_config = signal_config
+
+        self.fft_size = self.signal_config.fft_size
 
         self.pcm_mode = r"L + R"
 
-        self.left_avg_fft = np.zeros([self.avg_nr, 2048], dtype=complex)
-        self.right_avg_fft = np.zeros([self.avg_nr, 2048], dtype=complex)
+        self.left_avg_fft = np.zeros([self.avg_nr, int(self.fft_size/2)], dtype=complex)
+        self.right_avg_fft = np.zeros([self.avg_nr, int(self.fft_size/2)], dtype=complex)
         self.idx = 0
 
         # Impedance calculation
@@ -34,7 +36,7 @@ class DataProc():
 
         self.grPCM = pg.PlotWidget()
         self.grPCM.plotItem.showGrid(True, True, 0.7)
-        self.grPCM.plotItem.setXRange(0, 4096, padding=0)
+        self.grPCM.plotItem.setXRange(0, self.fft_size, padding=0)
         self.grPCM.plotItem.setYRange(-1.5, 1.5, padding=0.02)
 
         self.rescale = False
@@ -73,8 +75,11 @@ class DataProc():
             start = 0
             end = self.signal_config.fft_size
 
-        left_x = np.linspace(0, 4096 - 1, 4096)
-        right_x = np.linspace(0, 4096 - 1, 4096)
+        self.fft_size = self.signal_config.fft_size
+        self.grPCM.plotItem.setXRange(0, self.fft_size, padding=0)
+
+        left_x = np.linspace(0, self.fft_size - 1, self.fft_size)
+        right_x = np.linspace(0, self.fft_size - 1, self.fft_size)
         left_y = left_y[start:end]
         left_plot_y = left_y * self.window_function[self.pcm_windowing](len(left_y))
         right_y = right_y[start:end]
@@ -93,21 +98,21 @@ class DataProc():
             left_fft = (2 * np.fft.fft(windowed_left_y) / len(windowed_left_y))[0:(len(windowed_left_y) / 2).__int__()]
             right_fft = (2 * np.fft.fft(windowed_right_y) / len(windowed_right_y))[0:(len(windowed_right_y) / 2).__int__()]
 
-            # if self.average:
-            #
-            #     self.left_avg_fft[self.idx] = left_fft
-            #     self.right_avg_fft[self.idx] = right_fft
-            #
-            #     self.idx += 1
-            #     self.idx = self.idx % self.avg_nr
-            #
-            #     left_fft = np.average(self.left_avg_fft, axis=0)
-            #     right_fft = np.average(self.right_avg_fft, axis=0)
+            if self.average:
+            
+                self.left_avg_fft[self.idx] = left_fft
+                self.right_avg_fft[self.idx] = right_fft
+            
+                self.idx += 1
+                self.idx = self.idx % self.avg_nr
+            
+                left_fft = np.average(self.left_avg_fft, axis=0)
+                right_fft = np.average(self.right_avg_fft, axis=0)
 
             left_fft_db = 20 * np.log10(np.abs(left_fft))
             right_fft_db = 20 * np.log10(np.abs(right_fft))
 
-            x_data = (np.linspace(0, len(left_y) - 1, len(left_y)))[1:2048]
+            x_data = (np.linspace(0, len(left_y) - 1, len(left_y)))[1:int(self.fft_size/2)]
 
             # if self.impedance_calc:
             #     q = np.abs(right_fft / left_fft)
@@ -116,12 +121,12 @@ class DataProc():
 
             # else:
             if self.show_fft_left:
-                # self.grFFT.plot(x_data * 48000. / 2048, left_fft_db[1:2048], pen="r", clear=True)
-                self.grFFT.plot(left_fft_db[1:2048], pen="r", clear=True)
+                self.grFFT.plot(x_data * 96000. / self.fft_size, left_fft_db[1:int(self.fft_size/2)], pen="r", clear=True)
+                # self.grFFT.plot(left_fft_db[1:int(self.fft_size/2)], pen="b", clear=True)
 
             if self.show_fft_right:
-                # self.grFFT.plot(x_data * 48000. / 2048, right_fft_db[1:2048], pen="b", clear=not self.show_fft_left)
-                self.grFFT.plot(right_fft_db[1:2048], pen="b", clear=not self.show_fft_left)
+                self.grFFT.plot(x_data * 96000. / self.fft_size, right_fft_db[1:int(self.fft_size)], pen="b", clear=not self.show_fft_left)
+                # self.grFFT.plot(right_fft_db[1:int(self.fft_size/2)], pen="r", clear=not self.show_fft_left)
 
     def set_data_source(self, data_source):
         self.data_source = data_source

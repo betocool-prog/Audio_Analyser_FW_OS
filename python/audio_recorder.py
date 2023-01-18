@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from PyQt5.QtCore import pyqtSlot, pyqtSignal, QThread
 from PyQt5 import QtWidgets
 import pyqtgraph as pg
@@ -14,7 +16,7 @@ class TCPClientThread(QThread):
 
     def __init__(self):
         QThread.__init__(self)
-        self.LOCAL_IP = "192.168.1.144"
+        self.LOCAL_IP = "192.168.2.144"
         self.LOCAL_PORT = 8888
         self.sample_type = np.dtype([('left', np.int32), ('right', np.int32)])
         self.sock = None

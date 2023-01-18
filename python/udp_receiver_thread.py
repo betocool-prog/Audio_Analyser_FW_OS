@@ -11,7 +11,7 @@ class UDPReceiverThread(QThread):
 
     def __init__(self):
         QThread.__init__(self)
-        self.LOCAL_IP = "192.168.1.20"
+        self.LOCAL_IP = "192.168.2.20"
         self.LOCAL_PORT = 8888
         self.sample_type = np.dtype([('left', np.int32), ('right', np.int32)])
         self.left_samples = None
